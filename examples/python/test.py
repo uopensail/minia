@@ -19,13 +19,7 @@
 import json
 import minia
 
-"""
-# example
-[transform]
-expressions = ['x = 5 + 5 + h', 'y = sqrt(cast(x))', 'z = y*y', 'w = ceil(y)']
-features = ['x', 'y', 'z', 'w']
-"""
-m = minia.Minia("config.toml")
+m = minia.Minia("../config/config.toml")
 features = {
     "label": {"type": 0, "value": 0},
     "C_0": {"type": 2, "value": "68fd1e64"},

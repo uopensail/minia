@@ -1,8 +1,9 @@
 //
 // `Minia` - A C++ tool for feature transformation and hashing
 // Copyright (C) 2019 - present Uopensail <timepi123@gmail.com>
-// This software is distributed under the GNU Affero General Public License (AGPL3.0)
-// For more information, please visit: https://www.gnu.org/licenses/agpl-3.0.html
+// This software is distributed under the GNU Affero General Public License
+// (AGPL3.0) For more information, please visit:
+// https://www.gnu.org/licenses/agpl-3.0.html
 //
 // This program is free software: you are free to redistribute and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -61,10 +62,10 @@ struct find_vector_index;
 template <std::size_t Index, typename TargetType, typename First,
           typename... Rest>
 struct find_vector_index<Index, TargetType, First, Rest...> {
-    static constexpr std::size_t value =
-        is_vector_v<First>
-            ? Index
-            : find_vector_index<Index + 1, TargetType, Rest...>::value;
+  static constexpr std::size_t value =
+      is_vector_v<First>
+          ? Index
+          : find_vector_index<Index + 1, TargetType, Rest...>::value;
 };
 
 /**
@@ -80,8 +81,8 @@ struct find_vector_index<Index, TargetType, First, Rest...> {
  */
 template <std::size_t Index, typename TargetType>
 struct find_vector_index<Index, TargetType> {
-    static constexpr std::size_t value =
-        std::numeric_limits<std::size_t>::max(); ///< Returns an invalid index
+  static constexpr std::size_t value =
+      std::numeric_limits<std::size_t>::max(); ///< Returns an invalid index
 };
 
 /**
@@ -96,7 +97,7 @@ struct find_vector_index<Index, TargetType> {
  * std::numeric_limits<std::size_t>::max() if not found.
  */
 template <typename... Types> constexpr std::size_t get_vector_type_index() {
-    return find_vector_index<0, void, Types...>::value;
+  return find_vector_index<0, void, Types...>::value;
 }
 
 /**
@@ -110,7 +111,7 @@ template <typename... Types> constexpr std::size_t get_vector_type_index() {
  * @return True if exactly one type is a std::vector, otherwise false.
  */
 template <typename... Types> constexpr bool exactly_one_vector() {
-    return (0 + ... + is_vector<std::decay_t<Types>>::value) == 1;
+  return (0 + ... + is_vector<std::decay_t<Types>>::value) == 1;
 }
 
 } // namespace minia

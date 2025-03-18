@@ -1,8 +1,9 @@
 //
 // `Minia` - A C++ tool for feature transformation and hashing
 // Copyright (C) 2019 - present Uopensail <timepi123@gmail.com>
-// This software is distributed under the GNU Affero General Public License (AGPL3.0)
-// For more information, please visit: https://www.gnu.org/licenses/agpl-3.0.html
+// This software is distributed under the GNU Affero General Public License
+// (AGPL3.0) For more information, please visit:
+// https://www.gnu.org/licenses/agpl-3.0.html
 //
 // This program is free software: you are free to redistribute and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -34,13 +35,13 @@ namespace minia {
  * handling.
  */
 enum DataType : int8_t {
-    kInt64 = 0,  ///< Represents a 64-bit integer
-    kFloat32,    ///< Represents a 32-bit floating-point number
-    kString,     ///< Represents a string
-    kInt64s,     ///< Represents a vector of 64-bit integers
-    kFloat32s,   ///< Represents a vector of 32-bit floating-point numbers
-    kStrings,    ///< Represents a vector of strings
-    kError = 127 ///< Represents an error state or undefined data type
+  kInt64 = 0,  ///< Represents a 64-bit integer
+  kFloat32,    ///< Represents a 32-bit floating-point number
+  kString,     ///< Represents a string
+  kInt64s,     ///< Represents a vector of 64-bit integers
+  kFloat32s,   ///< Represents a vector of 32-bit floating-point numbers
+  kStrings,    ///< Represents a vector of strings
+  kError = 127 ///< Represents an error state or undefined data type
 };
 
 } // namespace minia
