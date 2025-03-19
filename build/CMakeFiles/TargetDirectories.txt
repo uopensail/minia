@@ -1,3 +1,0 @@
-/home/timepi/workspace/minia/build/CMakeFiles/minia.dir
-/home/timepi/workspace/minia/build/CMakeFiles/edit_cache.dir
-/home/timepi/workspace/minia/build/CMakeFiles/rebuild_cache.dir
