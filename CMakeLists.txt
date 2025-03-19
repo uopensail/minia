@@ -13,25 +13,24 @@ include(FetchContent)
 
 
 FetchContent_Declare(
-    antlr4-runtime
+    antlr4
     GIT_REPOSITORY https://github.com/antlr/antlr4.git
     GIT_TAG        4.13.2  
     SOURCE_SUBDIR  runtime/Cpp  
 )
 
-
+set(ANTLR4_BUILD_SHARED ON CACHE BOOL "" FORCE)  
 set(ANTLR4_WITH_STATIC_CRT OFF CACHE BOOL "" FORCE)
 set(ANTLR4_BUILD_CPP_TESTS OFF CACHE BOOL "" FORCE)
 set(ANTLR4_INSTALL OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(antlr4-runtime)
+FetchContent_MakeAvailable(antlr4)
 
 include_directories(include)
 include_directories(include/grammar)
 include_directories(/usr/local/include)
-include_directories(/usr/local/include/antlr4-runtime)
+include_directories(${antlr4_SOURCE_DIR}/runtime/Cpp/runtime/src)
 link_directories(/usr/local/lib)
-
 
 set(MINIA_SOURCES
     src/builtin.cc
@@ -47,10 +46,12 @@ set(MINIA_SOURCES
 
 add_library(minia_static STATIC ${MINIA_SOURCES})
 target_link_libraries(minia_static PRIVATE
-    antlr4-runtime
+    antlr4_shared
     dl
     pthread
 )
+
+
 
 set_target_properties(minia_static PROPERTIES
 BUILD_WITH_INSTALL_RPATH TRUE
@@ -62,6 +63,15 @@ list(APPEND CMAKE_INSTALL_RPATH "/usr/local/lib")
 
 option(PYBIND "Description of PYBIND" ON)
 if (PYBIND)
+    include(FetchContent)
+
+    FetchContent_Declare(
+    pybind11
+    GIT_REPOSITORY https://github.com/pybind/pybind11.git
+    GIT_TAG v2.11.1  # 指定稳定版本
+    )
+
+    FetchContent_MakeAvailable(pybind11)
     set (Python3_FIND_VIRTUALENV FIRST)
     set(PYTHON3_EXECUTABLE ${PYTHON_EXECUTABLE})
 
@@ -74,7 +84,7 @@ if (PYBIND)
 
 
     # Include pybind11
-    find_package(pybind11 REQUIRED)
+    #find_package(pybind11 REQUIRED)
     include_directories(${PYTHON_INCLUDE_DIRS})
 
     # Define the Python module
