@@ -25,6 +25,12 @@ set(ANTLR4_BUILD_CPP_TESTS OFF CACHE BOOL "" FORCE)
 set(ANTLR4_INSTALL OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(antlr4)
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    add_subdirectory(
+        ${antlr4_SOURCE_DIR}/runtime/Cpp
+        ${antlr4_BINARY_DIR}
+    )
+endif()
 
 include_directories(include)
 include_directories(include/grammar)
@@ -72,6 +78,12 @@ if (PYBIND)
     )
 
     FetchContent_MakeAvailable(pybind11)
+    if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+        add_subdirectory(
+            ${pybind11_SOURCE_DIR}
+            ${pybind11_BINARY_DIR}
+        )
+    endif()
     set (Python3_FIND_VIRTUALENV FIRST)
     set(PYTHON3_EXECUTABLE ${PYTHON_EXECUTABLE})
 
