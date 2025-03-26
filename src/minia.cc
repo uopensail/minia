@@ -45,6 +45,37 @@ Minia::Minia(const std::string &config_file) {
   parse(exprs);
 }
 
+Minia::Minia(const toml::table &table) {
+  std::vector<std::string> exprs;
+  if (auto *arr = table.at_path("transform.expressions").as_array()) {
+    for (const auto &item : *arr) {
+      if (auto expr = item.value<std::string>()) {
+        exprs.emplace_back(*expr);
+      }
+    }
+  } else {
+    throw std::runtime_error("Missing or invalid 'transform.expressions' "
+                             "array in configuration.");
+  }
+
+  if (auto *arr = table.at_path("transform.features").as_array()) {
+    for (const auto &item : *arr) {
+      if (auto feature = item.value<std::string>()) {
+        features_.emplace_back(*feature);
+      }
+    }
+  } else {
+    throw std::runtime_error(
+        "Missing or invalid 'transform.features' array in configuration.");
+  }
+
+  for (const auto &k : features_) {
+    name_mappings_[k] = k;
+  }
+
+  parse(exprs);
+}
+
 void Minia::call(Features &features) {
   for (const auto &op : ops_) {
     op(features);

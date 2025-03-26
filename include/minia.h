@@ -39,6 +39,17 @@ public:
    */
   explicit Minia(const std::string &config_file);
 
+  /**
+   * @brief Constructs a Minia object by parsing a configuration table.
+   *
+   * This constructor initializes the Minia object by reading expressions and
+   * features from a TOML configuration table. It parses the table, extracts the
+   * necessary data, and handles any parsing errors.
+   *
+   * @param table The configuration table.
+   */
+  explicit Minia(const toml::table &table);
+
   ~Minia() = default;
 
   /**
