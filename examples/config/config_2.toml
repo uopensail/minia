@@ -1,0 +1,3 @@
+[transform]
+expressions = ['a =  to_string(pow(h,2))']
+features = ['a']

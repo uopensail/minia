@@ -36,75 +36,81 @@ namespace minia {
  * the conversion between C++ and Python data types.
  */
 class PyMinia {
-  public:
-    /**
-     * @brief Deleted default constructor.
-     *
-     * The default constructor is deleted to enforce the use of a configuration
-     * file for initialization.
-     */
-    PyMinia() = delete;
+public:
+  /**
+   * @brief Deleted default constructor.
+   *
+   * The default constructor is deleted to enforce the use of a configuration
+   * file for initialization.
+   */
+  PyMinia() = delete;
 
-    /**
-     * @brief Constructs a PyMinia object using a configuration file.
-     *
-     * This constructor initializes the underlying Minia object with the
-     * specified configuration file, setting up the necessary expressions and
-     * features.
-     *
-     * @param config_file The path to the TOML configuration file.
-     */
-    explicit PyMinia(const std::string &config_file) : minia_(config_file) {}
+  /**
+   * @brief Constructs a PyMinia object using a configuration file.
+   *
+   * This constructor initializes the underlying Minia object with the
+   * specified configuration file, setting up the necessary expressions and
+   * features.
+   *
+   * @param config_file The path to the TOML configuration file.
+   */
+  explicit PyMinia(const std::string &config_file) : minia_(config_file) {}
 
-    /**
-     * @brief Default destructor.
-     */
-    ~PyMinia() = default;
+  /**
+   * @brief Default destructor.
+   */
+  ~PyMinia() = default;
 
-    /**
-     * @brief Processes features and returns the results as a Python dictionary.
-     *
-     * This function applies the configured operations to the input features and
-     * returns a dictionary of results, with type conversions handled for Python
-     * compatibility.
-     *
-     * @param features A string representing the features to process.
-     * @return A pybind11 dictionary containing the processed feature values.
-     */
-    py::dict call(const std::string &features) {
-        py::dict ret;
-        Features fea(features);
-        minia_.call(fea);
-        const auto &keys = minia_.features();
+  /**
+   * @brief Processes features and returns the results as a Python dictionary.
+   *
+   * This function applies the configured operations to the input features and
+   * returns a dictionary of results, with type conversions handled for Python
+   * compatibility.
+   *
+   * @param features A string representing the features to process.
+   * @return A pybind11 dictionary containing the processed feature values.
+   */
+  py::dict call(const std::string &features) {
+    py::dict ret;
+    Features fea(features);
+    minia_.call(fea);
+    const auto &keys = minia_.features();
 
-        for (const auto &k : keys) {
-            FeaturePtr f = fea.get(k);
-            if (!f) {
-                continue;
-            }
-            switch (f->type) {
-            case minia::DataType::kFloat32:
-                ret[k.c_str()] = f->get<float>();
-                break;
-                case minia::DataType::kFloat32s:
-                ret[k.c_str()] = py::cast(f->get<std::vector<float>>());
-                break;
-            case minia::DataType::kInt64:
-                ret[k.c_str()] = f->get<int64_t>();
-                break;
-            case minia::DataType::kInt64s:
-                ret[k.c_str()] = py::cast(f->get<std::vector<int64_t>>());
-                break;
-            default:
-                break;
-            }
-        }
-        return ret;
+    for (const auto &k : keys) {
+      FeaturePtr f = fea.get(k);
+      if (!f) {
+        continue;
+      }
+      switch (f->type) {
+      case minia::DataType::kFloat32:
+        ret[k.c_str()] = f->get<float>();
+        break;
+      case minia::DataType::kFloat32s:
+        ret[k.c_str()] = py::cast(f->get<std::vector<float>>());
+        break;
+      case minia::DataType::kInt64:
+        ret[k.c_str()] = f->get<int64_t>();
+        break;
+      case minia::DataType::kInt64s:
+        ret[k.c_str()] = py::cast(f->get<std::vector<int64_t>>());
+        break;
+      case minia::DataType::kString:
+        ret[k.c_str()] = f->get<std::string>();
+        break;
+      case minia::DataType::kStrings:
+        ret[k.c_str()] = py::cast(f->get<std::vector<std::string>>());
+        break;
+      default:
+        break;
+      }
     }
+    return ret;
+  }
 
-  private:
-    Minia minia_; /**< An instance of the Minia class to perform feature
-                     processing. */
+private:
+  Minia minia_; /**< An instance of the Minia class to perform feature
+                   processing. */
 };
 
 } // namespace minia

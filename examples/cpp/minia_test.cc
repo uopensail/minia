@@ -2,8 +2,6 @@
 #include <iostream>
 
 int main() {
-    minia::Minia a("./config.toml");
-    
-
+    minia::Minia a("../config/config.toml");
     return 0;
 }
