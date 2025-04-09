@@ -32,4 +32,6 @@
 *.app
 .vscode
 build/
-
+dist/
+.eggs/
+*egg-info/
