@@ -20,6 +20,7 @@
 
 #include "grammar/minia.h"
 #include "grammar/miniaLexer.h"
+#include "toml.hpp"
 #include <memory>
 #include <string>
 #include <tuple>

@@ -2,12 +2,23 @@ cmake_minimum_required(VERSION 3.12)
 project(minia)
 
 set(CMAKE_CXX_STANDARD 17)
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g -ggdb")
-SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O2 -Wall -fPIC")
+SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O2 -Wall")
 SET(CMAKE_CXX_FLAGS "-std=c++17")
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+add_compile_definitions(__GCC__)
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
+if(APPLE)
+add_compile_definitions(_LIBCPP_DISABLE_AVAILABILITY)
 set(CMAKE_MACOSX_RPATH 1)
+endif(APPLE)
+
+add_compile_options(-fPIC)
 
 include(FetchContent)
 
@@ -78,12 +89,6 @@ if (PYBIND)
     )
 
     FetchContent_MakeAvailable(pybind11)
-    if (CMAKE_SYSTEM_NAME MATCHES "Linux")
-        add_subdirectory(
-            ${pybind11_SOURCE_DIR}
-            ${pybind11_BINARY_DIR}
-        )
-    endif()
     set (Python3_FIND_VIRTUALENV FIRST)
     set(PYTHON3_EXECUTABLE ${PYTHON_EXECUTABLE})
 
