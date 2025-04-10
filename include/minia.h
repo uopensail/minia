@@ -18,13 +18,14 @@
 #ifndef MINIA_H_
 #define MINIA_H_
 
-#include "grammar/minia.h"
-#include "grammar/miniaLexer.h"
-#include "toml.hpp"
 #include <memory>
 #include <string>
 #include <tuple>
 #include <unordered_map>
+
+#include "grammar/minia.h"
+#include "grammar/miniaLexer.h"
+#include "toml.hpp"
 
 namespace minia {
 class Minia {
@@ -168,6 +169,7 @@ private:
       ops_; /**< A vector storing the operations to be applied to features. */
   std::unordered_map<std::string, std::string>
       name_mappings_; /**< A map for feature name mappings. */
+  std::unordered_map<std::string, FeaturePtr> literals_; /**< Literal valeus */
 };
 
 } // namespace minia

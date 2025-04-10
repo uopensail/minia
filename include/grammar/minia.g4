@@ -1,56 +1,117 @@
 grammar minia;
 options { caseInsensitive=true; }
-// antlr4 -Dlanguage=Cpp minia.g4
 
-prog                    : (start SEMI)* start EOF;
+// Program structure
+prog        : (start SEMI)* start EOF;
 
-start                   : IDENTIFIER T_EQUAL expr;
+// Assignment statement
+start       : IDENTIFIER T_EQUAL expr;
 
-expr                    : expr T_MOD expr                                                                   # ModExpr
-                        | expr T_MUL expr                                                                   # MulExpr
-                        | expr T_DIV expr                                                                   # DivExpr
-                        | expr T_ADD expr                                                                   # AddExpr
-                        | expr T_SUB expr                                                                   # SubExpr
-                        | IDENTIFIER '(' ')'                                                                # RuntTimeFuncExpr
-                        | IDENTIFIER '(' expr (COMMA expr)* ')'                                             # FuncExpr
-                        | IDENTIFIER                                                                        # ColumnExpr
-                        | STRING                                                                            # StringExpr
-                        | INTEGER                                                                           # IntegerExpr
-                        | DECIMAL                                                                           # DecimalExpr
-                        | STRING_LIST                                                                       # StringLISTExpr
-                        | INTEGER_LIST                                                                      # IntegerLISTExpr
-                        | DECIMAL_LIST                                                                      # DecimalLISTExpr
-                        | '(' expr ')'                                                                      # PlainExpr
-                        ;
+// Expression hierarchy (lowest to highest precedence)
+expr        : logicalOrExpr;
 
-DOT                 : '.';
-COMMA               : ',';
-SEMI                : ';';
-QUOTA               : '"';
+logicalOrExpr   : logicalOrExpr T_OR logicalOrExpr # OrExpr 
+                | logicalAndExpr                   # TrivialLogicalAndExpr
+                ;
 
-T_EQUAL             : '=' ;
-T_ADD               : '+' ;
-T_SUB               : '-' ;
-T_MUL               : '*' ;
-T_DIV               : '/' ;
-T_MOD               : '%' ;
+logicalAndExpr  : logicalAndExpr T_AND logicalAndExpr # AndExpr
+                | equalityExpr                        # TrivialEqualityExpr
+                ;
 
-IDENTIFIER              options { caseInsensitive=false; } : [_a-zA-Z][_a-zA-Z0-9]*; // 变量
+equalityExpr    : relationalExpr T_EQ relationalExpr    # EqualExpr
+                | relationalExpr T_NEQ relationalExpr   # NotEqualExpr
+                | relationalExpr                        # TrivialRelationalExpr
+                ;
 
-INTEGER_LIST            : '[' (INTEGER (COMMA WS*)?)* INTEGER WS* ']' ;
-INTEGER                 : '-'? '0' | [1-9] [0-9]* ;
+relationalExpr  : additiveExpr T_GT additiveExpr        # GreaterThanExpr
+                | additiveExpr T_GTE additiveExpr       # GreaterThanEqualExpr      
+                | additiveExpr T_LT additiveExpr        # LessThanExpr
+                | additiveExpr T_LTE additiveExpr       # LessThanEqualExpr
+                | additiveExpr                          # TrivialAdditiveExpr
+                ;
 
-DECIMAL_LIST            : '[' (DECIMAL (COMMA WS*)?)* DECIMAL WS* ']' ;
-DECIMAL                 : '-'? ('0' | [1-9] [0-9]*) '.' [0-9]* ;
+additiveExpr    : multiplicativeExpr T_ADD multiplicativeExpr # AddExpr
+                | multiplicativeExpr T_SUB multiplicativeExpr # SubExpr
+                | multiplicativeExpr                          # TrivialMultiplicativeExpr
+                ;
 
-STRING_LIST             : '[' (STRING (COMMA WS*)?)* STRING WS* ']' ;
+multiplicativeExpr : unaryExpr T_MUL unaryExpr # MulExpr
+                   | unaryExpr T_DIV unaryExpr # DivExpr
+                   | unaryExpr T_MOD unaryExpr # ModExpr
+                   | unaryExpr                 # TrivialUnaryExpr
+                   ;
 
-STRING options { caseInsensitive=false; } : QUOTA (ESC | SAFECODEPOINT)* QUOTA;
+unaryExpr       : T_NOT unaryExpr # NotExpr 
+                | primaryExpr     # TrivialPrimaryExpr
+                ;
 
+primaryExpr     : '(' expr ')'              # ParenthesizedExpr
+                | funcCall                  # FunctionCallExpr
+                | IDENTIFIER                # ColumnExpr
+                | literal                   # LiteralExpr
+                | listLiteral               # ListExpr
+                | T_TRUE                    # TrueExpr
+                | T_FALSE                   # FalseExpr
+                ;
+
+// Maintain typed list literals
+listLiteral     : STRING_LIST               # StringListExpr
+                | INTEGER_LIST              # IntegerListExpr
+                | DECIMAL_LIST              # DecimalListExpr
+                ;
+
+// Function call structure
+funcCall        : IDENTIFIER '(' exprList? ')';
+exprList        : expr (COMMA expr)*;
+
+// Literal value types
+literal         : STRING                    # StringExpr
+                | INTEGER                   # IntegerExpr
+                | DECIMAL                   # DecimalExpr
+                ;
+
+// Token definitions
+T_AND       : '&';
+T_OR        : '|';
+T_NOT       : '!';
+T_TRUE      : 'true';
+T_FALSE     : 'false';
+T_EQ        : '==';
+T_NEQ       : '!=';
+T_GT        : '>';
+T_GTE       : '>=';
+T_LT        : '<';
+T_LTE       : '<=';
+T_ADD       : '+';
+T_SUB       : '-';
+T_MUL       : '*';
+T_DIV       : '/';
+T_MOD       : '%';
+COMMA       : ',';
+SEMI        : ';';
+T_EQUAL     : '=';
+QUOTA       : '"';
+
+// Improved list definitions with better whitespace handling
+STRING_LIST     : '[' WS* (STRING (WS* ',' WS* STRING)*)? WS* ']';
+INTEGER_LIST    : '[' WS* (INTEGER (WS* ',' WS* INTEGER)*)? WS* ']';
+DECIMAL_LIST    : '[' WS* (DECIMAL (WS* ',' WS* DECIMAL)*)? WS* ']';
+
+// Identifier with case sensitivity
+IDENTIFIER  options { caseInsensitive=false; } : [_a-zA-Z][_a-zA-Z0-9]*;
+
+// Numeric literals
+INTEGER     : '-'? '0' | [1-9][0-9]*;
+DECIMAL     : '-'? ([0-9]* '.' [0-9]+ | [0-9]+ '.' [0-9]*);
+
+// String literal with escape handling
+STRING      : QUOTA (ESC | SAFECODEPOINT)* QUOTA;
+
+// Fragment rules
 fragment ESC: '\\' (["\\/bfnrt] | UNICODE);
 fragment UNICODE: 'u' HEX HEX HEX HEX;
 fragment HEX options { caseInsensitive=false; }  : [0-9a-fA-F];
 fragment SAFECODEPOINT: ~ ["\\\u0000-\u001F];
 
-// Ignore whitespace
-WS                      : [ \t\n\r] + -> skip ;
+// Whitespace handling
+WS          : [ \t\n\r]+ -> skip;

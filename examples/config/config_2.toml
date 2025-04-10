@@ -1,3 +1,5 @@
 [transform]
-expressions = ['a =  to_string(pow(h,2))']
-features = ['a']
+expressions = [
+    'a = 1',
+    'b = !a | c & 0',
+]
