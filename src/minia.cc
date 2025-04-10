@@ -1,7 +1,9 @@
 #include "minia.h"
+
+#include <iostream>
+
 #include "builtin.h"
 #include "toml.hpp"
-#include <iostream>
 
 namespace minia {
 
@@ -27,21 +29,6 @@ Minia::Minia(const std::string &config_file) {
                              "array in configuration.");
   }
 
-  if (auto *arr = table.at_path("transform.features").as_array()) {
-    for (const auto &item : *arr) {
-      if (auto feature = item.value<std::string>()) {
-        features_.emplace_back(*feature);
-      }
-    }
-  } else {
-    throw std::runtime_error(
-        "Missing or invalid 'transform.features' array in configuration.");
-  }
-
-  for (const auto &k : features_) {
-    name_mappings_[k] = k;
-  }
-
   parse(exprs);
 }
 
@@ -58,25 +45,18 @@ Minia::Minia(const toml::table &table) {
                              "array in configuration.");
   }
 
-  if (auto *arr = table.at_path("transform.features").as_array()) {
-    for (const auto &item : *arr) {
-      if (auto feature = item.value<std::string>()) {
-        features_.emplace_back(*feature);
-      }
-    }
-  } else {
-    throw std::runtime_error(
-        "Missing or invalid 'transform.features' array in configuration.");
-  }
-
-  for (const auto &k : features_) {
-    name_mappings_[k] = k;
-  }
-
   parse(exprs);
 }
 
 void Minia::call(Features &features) {
+  // copy literals
+  for (const auto &[key, value] : literals_) {
+    auto ptr = features.get(key);
+    if (ptr == nullptr) {
+      features.insert(key, value);
+    }
+  }
+
   for (const auto &op : ops_) {
     op(features);
   }
@@ -111,6 +91,12 @@ void Minia::parse(const std::vector<std::string> &exprs) {
 
   // Retrieve nodes from the listener
   auto nodes = listener.nodes_;
+
+  features_ = listener.features_;
+
+  for (const auto &k : features_) {
+    name_mappings_[k] = k;
+  }
 
   // Simplify nodes
   simplify(nodes);
@@ -234,6 +220,20 @@ void Minia::deduplicate(std::vector<std::shared_ptr<Expr>> &all_nodes) {
   // Process unique variable expressions into operations
   for (const auto &node : unique_nodes) {
     if (node->type != ExprType::kExprTypeVariable) {
+      // record all literal values
+      if (node->type == ExprType::kExprTypeLiteral) {
+        bool status = false;
+        for (const std::string &fea : features_) {
+          if (node->name == fea) {
+            status = true;
+            break;
+          }
+        }
+        if (status) {
+          auto var = std::dynamic_pointer_cast<Literal>(node);
+          literals_[var->name] = var->value;
+        }
+      }
       continue;
     }
     auto var = std::dynamic_pointer_cast<Variable>(node);

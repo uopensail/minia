@@ -1,10 +1,12 @@
 #include "builtin.h"
+
+#include <time.h>
+
 #include <algorithm>
 #include <chrono>
 #include <ctime>
 #include <iomanip>
 #include <stdexcept>
-#include <time.h>
 #include <vector>
 
 namespace minia {
@@ -31,6 +33,12 @@ int64_t round(float v) { return roundf(v); }
 int64_t floor(float v) { return floorf(v); }
 
 float sigmoid(const float x) { return 1.0 / (1.0 + expf(-x)); }
+
+int64_t _and(const int64_t a, const int64_t b) { return a && b; }
+
+int64_t _or(const int64_t a, const int64_t b) { return a || b; }
+
+int64_t _not(const int64_t v) { return !v; }
 
 std::string format_date(time_t t, const std::string &fmt) {
   std::tm *tm = std::localtime(&t);

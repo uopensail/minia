@@ -41,7 +41,6 @@ Example Configuration:
 ```toml
 [transform]
 expressions = ['x = 5 + 5 + h', 'y = sqrt(x)', 'z = y * y']
-features = ['x', 'y', 'z']
 ```
 
 ### JSON-Based Feature Input
@@ -82,6 +81,16 @@ The configuration file is written in TOML format and includes expressions that d
 | Operation      | Description                                                    |
 | -------------- | -------------------------------------------------------------- |
 | hash           | Computes a hash value for the input.                           |
+| <              | Checks if the left operand is less than the right operand. | 
+| <=             | Checks if the left operand is less than or equal to the right operand. | 
+| ==             | Checks if the left operand is equal to the right operand. | 
+| !=             | Checks if the left operand is not equal to the right operand. | 
+| >=             | Checks if the left operand is greater than or equal to the right operand. | 
+| >              | Checks if the left operand is greater than the right operand. | 
+| contains       | Checks if a value exists within an iterable (e.g., list, tuple, or string). | 
+| &              | Logical AND operation; returns True if both operands are True. | 
+| \|              | Logical OR operation; returns True if at least one operand is True. | 
+| !              | Logical NOT operation; negates the truth value of the operand. |
 | +              | Performs addition of numbers or arrays.                        |
 | -              | Performs subtraction between numbers or arrays.                |
 | \*             | Multiplies numbers or arrays.                                  |

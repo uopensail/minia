@@ -17,16 +17,17 @@
 #
 
 import os
+import pathlib
 import re
 import subprocess
 import sys
 from pathlib import Path
-import pathlib
 
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
 here = pathlib.Path(__file__).parent.resolve()
+
 
 def get_requires(filename):
     requirements = []
@@ -36,11 +37,13 @@ def get_requires(filename):
                 requirements.append(line)
     return requirements
 
+
 def generate_long_description_file():
     this_directory = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(this_directory, 'README.md')) as f:
+    with open(os.path.join(this_directory, "README.md")) as f:
         long_description = f.read()
     return long_description
+
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
 PLAT_TO_CMAKE = {
@@ -192,7 +195,7 @@ setup(
     install_requires=get_requires(os.path.join(here, "requirements.txt")),
     setup_requires=[
         "pybind11>=2.11.1",
-        "ninja==1.11.1",
+        "ninja>=1.11.1",
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
