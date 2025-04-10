@@ -89,7 +89,7 @@ The configuration file is written in TOML format and includes expressions that d
 | >              | Checks if the left operand is greater than the right operand. | 
 | contains       | Checks if a value exists within an iterable (e.g., list, tuple, or string). | 
 | &              | Logical AND operation; returns True if both operands are True. | 
-| |              | Logical OR operation; returns True if at least one operand is True. | 
+| \|              | Logical OR operation; returns True if at least one operand is True. | 
 | !              | Logical NOT operation; negates the truth value of the operand. |
 | +              | Performs addition of numbers or arrays.                        |
 | -              | Performs subtraction between numbers or arrays.                |
