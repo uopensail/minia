@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"gominia/wrapper"
+	"github.com/uopensail/minia/go/wrapper"
 )
 
 func main() {

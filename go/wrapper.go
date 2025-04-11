@@ -1,9 +1,11 @@
 package wrapper
 
 /*
-#cgo CFLAGS: -I../../../include
-#cgo LDFLAGS: -L../../..build -lcminia
+#cgo CXXFLAGS: -std=c++17 -I/usr/local/include/antlr4-runtime -I${SRCDIR}/include
+#cgo LDFLAGS: -lantlr4-runtime -static-libstdc++
 
+// 内联项目 C++ 源码
+#include "src/minia.cc"
 #include <stdlib.h>
 #include "cminia.h"
 */
