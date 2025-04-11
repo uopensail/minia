@@ -22,6 +22,11 @@ add_compile_options(-fPIC)
 
 include(FetchContent)
 
+set(ANTLR_BUILD_SHARED ON CACHE BOOL "" FORCE)
+set(ANTLR_WITH_STATIC_CRT OFF CACHE BOOL "" FORCE)
+set(ANTLR_BUILD_CPP_TESTS OFF CACHE BOOL "" FORCE)
+set(ANTLR_INSTALL OFF CACHE BOOL "" FORCE)
+
 FetchContent_Declare(
     antlr4
     GIT_REPOSITORY https://github.com/antlr/antlr4.git
@@ -29,14 +34,12 @@ FetchContent_Declare(
     SOURCE_SUBDIR runtime/Cpp
 )
 
-set(ANTLR4_BUILD_SHARED ON CACHE BOOL "" FORCE)
-set(ANTLR4_WITH_STATIC_CRT OFF CACHE BOOL "" FORCE)
-set(ANTLR4_BUILD_CPP_TESTS OFF CACHE BOOL "" FORCE)
-set(ANTLR4_INSTALL OFF CACHE BOOL "" FORCE)
+
 
 FetchContent_MakeAvailable(antlr4)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    message(STATUS "add_subdirectory: ${antlr4_SOURCE_DIR}")
     add_subdirectory(
         ${antlr4_SOURCE_DIR}/runtime/Cpp
         ${antlr4_BINARY_DIR}
