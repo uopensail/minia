@@ -195,7 +195,7 @@ setup(
     install_requires=get_requires(os.path.join(here, "requirements.txt")),
     setup_requires=[
         "pybind11>=2.11.1",
-        "ninja>=1.11.1",
+        "ninja==1.11.1",
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
