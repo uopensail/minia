@@ -89,8 +89,7 @@ FeaturePtr invoke(const std::vector<FeaturePtr> &args) {
  * The returned function handles argument validation and type conversion,
  * making it safe to use with heterogeneous feature types.
  */
-template <auto Func, typename... Ts>
-Function get_func() {
+template <auto Func, typename... Ts> Function get_func() {
   return [](const std::vector<FeaturePtr> &args) -> FeaturePtr {
     return invoke<Func, Ts...>(args);
   };
@@ -111,7 +110,7 @@ template <auto Func, typename T0, typename T1>
 auto cross_apply(const std::vector<T0> &a, const std::vector<T1> &b) {
   using ResultType = decltype(Func(std::declval<T0>(), std::declval<T1>()));
   std::vector<ResultType> ret;
-  ret.reserve(a.size() * b.size());  // Pre-allocate memory for efficiency
+  ret.reserve(a.size() * b.size()); // Pre-allocate memory for efficiency
 
   for (const auto &i : a) {
     for (const auto &j : b) {
@@ -146,7 +145,7 @@ auto map_apply(const std::vector<T0> &a, const std::vector<T1> &b) {
 
   using ResultType = decltype(Func(std::declval<T0>(), std::declval<T1>()));
   std::vector<ResultType> ret;
-  ret.reserve(a.size());  // Pre-allocate memory for efficiency
+  ret.reserve(a.size()); // Pre-allocate memory for efficiency
 
   for (size_t i = 0; i < a.size(); i++) {
     ret.push_back(Func(a[i], b[i]));
@@ -165,7 +164,7 @@ auto map_apply(const std::vector<T0> &a, const std::vector<T1> &b) {
  * element.
  */
 template <auto Func, typename... Types>
-auto repeat_apply(const Types &...args) {
+auto repeat_apply(const Types &... args) {
   static_assert(exactly_one_vector<Types...>(),
                 "Exactly one type must be a std::vector.");
 
@@ -175,9 +174,9 @@ auto repeat_apply(const Types &...args) {
   const auto &vec = std::get<index>(tuple_args);
 
   using ElementType = typename VecType::value_type;
-  using ResultType = decltype(Func(
-      (std::conditional_t<std::is_same_v<std::decay_t<Types>, VecType>,
-                          ElementType, Types>())...));
+  using ResultType = decltype(
+      Func((std::conditional_t<std::is_same_v<std::decay_t<Types>, VecType>,
+                               ElementType, Types>())...));
 
   std::vector<ResultType> ret;
   ret.reserve(vec.size());
@@ -195,16 +194,26 @@ auto repeat_apply(const Types &...args) {
 }
 
 /**
+ * @brief Returns the input value without any modification.
+ *
+ * This function acts as an identity function, returning the input
+ * parameter exactly as it was passed in. It supports any type
+ * that can be passed as a constant reference.
+ *
+ * @tparam T The type of the input parameter.
+ * @param a The input value of type T, passed as a constant reference.
+ * @return The same value as the input, of type T.
+ */
+template <typename T> T identity(const T &a) { return a; }
+
+/**
  * @brief Basic arithmetic addition operation
  * @tparam T Numeric type
  * @param a First operand
  * @param b Second operand
  * @return Sum of a and b
  */
-template <typename T>
-T add(const T &a, const T &b) {
-  return a + b;
-}
+template <typename T> T add(const T &a, const T &b) { return a + b; }
 
 /**
  * @brief Basic arithmetic subtraction operation
@@ -213,10 +222,7 @@ T add(const T &a, const T &b) {
  * @param b Subtrahend
  * @return Result of a - b
  */
-template <typename T>
-T sub(const T &a, const T &b) {
-  return a - b;
-}
+template <typename T> T sub(const T &a, const T &b) { return a - b; }
 
 /**
  * @brief Basic arithmetic multiplication operation
@@ -225,10 +231,7 @@ T sub(const T &a, const T &b) {
  * @param b Second factor
  * @return Product of a and b
  */
-template <typename T>
-T mul(const T &a, const T &b) {
-  return a * b;
-}
+template <typename T> T mul(const T &a, const T &b) { return a * b; }
 
 /**
  * @brief Basic arithmetic division operation
@@ -238,9 +241,9 @@ T mul(const T &a, const T &b) {
  * @return Quotient of a divided by b
  * @throws std::invalid_argument if b is zero
  */
-template <typename T>
-T div(const T &a, const T &b) {
-  if (b == 0) throw std::invalid_argument("Division by zero");
+template <typename T> T div(const T &a, const T &b) {
+  if (b == 0)
+    throw std::invalid_argument("Division by zero");
   return a / b;
 }
 
@@ -250,10 +253,7 @@ T div(const T &a, const T &b) {
  * @param x Input value
  * @return Absolute value of x
  */
-template <typename T>
-T _abs(const T &x) {
-  return x < 0 ? -x : x;
-}
+template <typename T> T _abs(const T &x) { return x < 0 ? -x : x; }
 
 /**
  * @brief Find minimum value in a vector
@@ -263,8 +263,9 @@ T _abs(const T &x) {
  * @throws std::invalid_argument if src is empty
  */
 template <typename T>
-T min(const std::vector<T> &src) {  // Changed from float to T
-  if (src.empty()) throw std::domain_error("Cannot find min of empty vector");
+T min(const std::vector<T> &src) { // Changed from float to T
+  if (src.empty())
+    throw std::domain_error("Cannot find min of empty vector");
   T ret = src[0];
   for (auto &v : src) {
     ret = std::min(ret, v);
@@ -279,9 +280,9 @@ T min(const std::vector<T> &src) {  // Changed from float to T
  * @return Maximum value in the vector
  * @throws std::invalid_argument if src is empty
  */
-template <typename T>
-T max(const std::vector<T> &src) {
-  if (src.empty()) throw std::domain_error("Cannot find max of empty vector");
+template <typename T> T max(const std::vector<T> &src) {
+  if (src.empty())
+    throw std::domain_error("Cannot find max of empty vector");
   T ret = src[0];
   for (auto &v : src) {
     ret = std::max(ret, v);
@@ -296,8 +297,7 @@ T max(const std::vector<T> &src) {
  * @return Average value of elements
  * @throws std::invalid_argument if src is empty
  */
-template <typename T>
-float average(const std::vector<T> &src) {
+template <typename T> float average(const std::vector<T> &src) {
   if (src.empty())
     throw std::domain_error("Cannot compute average of empty vector");
   T sum = std::accumulate(src.begin(), src.end(), T{0});
@@ -311,9 +311,9 @@ float average(const std::vector<T> &src) {
  * @return Variance of the population
  * @note Returns 0 for vectors with size <= 1
  */
-template <typename T>
-float variance(const std::vector<T> &src) {
-  if (src.size() <= 1) return 0.0f;
+template <typename T> float variance(const std::vector<T> &src) {
+  if (src.size() <= 1)
+    return 0.0f;
 
   const auto [sum, sq_sum] = std::accumulate(
       src.begin(), src.end(), std::pair<T, T>{0, 0},
@@ -331,8 +331,7 @@ float variance(const std::vector<T> &src) {
  * @param src Input vector
  * @return Standard deviation of the population
  */
-template <typename T>
-float stddev(const std::vector<T> &src) {
+template <typename T> float stddev(const std::vector<T> &src) {
   float var = variance<T>(src);
   return var > 0 ? sqrtf(var) : 0.0f;
 }
@@ -344,8 +343,7 @@ float stddev(const std::vector<T> &src) {
  * @param n Norm degree (must be >= 1)
  * @return L-n norm value
  */
-template <typename T>
-float norm(const std::vector<T> &src, const float n) {
+template <typename T> float norm(const std::vector<T> &src, const float n) {
   float sum = std::accumulate(src.begin(), src.end(), 0.0f,
                               [n](float acc, const T &val) {
                                 return acc + powf(static_cast<float>(val), n);
@@ -362,9 +360,9 @@ float norm(const std::vector<T> &src, const float n) {
  * @return Normalized value in [0,1]
  * @throws std::invalid_argument if min == max
  */
-template <typename T>
-float min_max(const T &v, const T &min, const T &max) {
-  if (min == max) throw std::invalid_argument("min and max cannot be equal");
+template <typename T> float min_max(const T &v, const T &min, const T &max) {
+  if (min == max)
+    throw std::invalid_argument("min and max cannot be equal");
   return static_cast<float>(v - min) / static_cast<float>(max - min);
 }
 
@@ -375,8 +373,7 @@ float min_max(const T &v, const T &min, const T &max) {
  * @param threshold Decision boundary
  * @return 0 if v < threshold, 1 otherwise
  */
-template <typename T>
-int64_t binarize(const T &v, const T &threshold) {
+template <typename T> int64_t binarize(const T &v, const T &threshold) {
   return v < threshold ? 0 : 1;
 }
 
@@ -484,8 +481,7 @@ float cast(int64_t v) noexcept;
  *   to_string(3.14f); // returns "3.140000"
  * @endcode
  */
-template <typename T>
-std::string to_string(const T &v) {
+template <typename T> std::string to_string(const T &v) {
   static_assert(std::is_arithmetic_v<T>, "to_string requires arithmetic types");
 
   if constexpr (std::is_floating_point_v<T>) {
@@ -639,8 +635,7 @@ int64_t _not(const int64_t v);
  * @param list List of elements.
  * @return int64_t 1 if the value is in the list, 0 otherwise.
  */
-template <typename T>
-int64_t contains(const std::vector<T> &list, const T v) {
+template <typename T> int64_t contains(const std::vector<T> &list, const T v) {
   for (const T &item : list) {
     if (v == item) {
       return 1;
@@ -657,10 +652,7 @@ int64_t contains(const std::vector<T> &list, const T v) {
  * @param b Second value.
  * @return int64_t 1 if values are equal, 0 otherwise.
  */
-template <typename T>
-int64_t equal(const T a, const T b) {
-  return a == b;
-}
+template <typename T> int64_t equal(const T a, const T b) { return a == b; }
 
 /**
  * @brief Checks if two values are not equal.
@@ -670,10 +662,7 @@ int64_t equal(const T a, const T b) {
  * @param b Second value.
  * @return int64_t 1 if values are not equal, 0 otherwise.
  */
-template <typename T>
-int64_t not_equal(const T a, const T b) {
-  return a != b;
-}
+template <typename T> int64_t not_equal(const T a, const T b) { return a != b; }
 
 /**
  * @brief Checks if one value is less than another.
@@ -683,10 +672,7 @@ int64_t not_equal(const T a, const T b) {
  * @param b Second value.
  * @return int64_t 1 if a is less than b, 0 otherwise.
  */
-template <typename T>
-int64_t less_than(const T a, const T b) {
-  return a < b;
-}
+template <typename T> int64_t less_than(const T a, const T b) { return a < b; }
 
 /**
  * @brief Checks if one value is less than or equal to another.
@@ -696,8 +682,7 @@ int64_t less_than(const T a, const T b) {
  * @param b Second value.
  * @return int64_t 1 if a is less than or equal to b, 0 otherwise.
  */
-template <typename T>
-int64_t less_than_equal(const T a, const T b) {
+template <typename T> int64_t less_than_equal(const T a, const T b) {
   return a <= b;
 }
 
@@ -709,8 +694,7 @@ int64_t less_than_equal(const T a, const T b) {
  * @param b Second value.
  * @return int64_t 1 if a is greater than b, 0 otherwise.
  */
-template <typename T>
-int64_t greater_than(const T a, const T b) {
+template <typename T> int64_t greater_than(const T a, const T b) {
   return a > b;
 }
 
@@ -722,8 +706,7 @@ int64_t greater_than(const T a, const T b) {
  * @param b Second value.
  * @return int64_t 1 if a is greater than or equal to b, 0 otherwise.
  */
-template <typename T>
-int64_t greater_than_equal(const T a, const T b) {
+template <typename T> int64_t greater_than_equal(const T a, const T b) {
   return a >= b;
 }
 
@@ -870,6 +853,15 @@ const std::unordered_map<std::string, Function> builtins = {
     {"hash:1=[2]", get_func<mmh3, std::string>()},
     {"hash:1=[5]", get_func<repeat_apply<mmh3, std::vector<std::string>>,
                             std::vector<std::string>>()},
+    {"identity:1=[0]", get_func<identity<int64_t>, int64_t>()},
+    {"identity:1=[1]", get_func<identity<float>, float>()},
+    {"identity:1=[2]", get_func<identity<std::string>, std::string>()},
+    {"identity:1=[3]",
+     get_func<identity<std::vector<int64_t>>, std::vector<int64_t>>()},
+    {"identity:1=[4]",
+     get_func<identity<std::vector<float>>, std::vector<float>>()},
+    {"identity:1=[5]",
+     get_func<identity<std::vector<std::string>>, std::vector<std::string>>()},
     {"and:2=[0,0]", get_func<_and, int64_t, int64_t>()},
     {"or:2=[0,0]", get_func<_or, int64_t, int64_t>()},
     {"not:1=[0]", get_func<_not, int64_t>()},
@@ -1298,6 +1290,6 @@ const std::unordered_map<std::string, Function> builtins = {
 
 };
 
-}  // namespace minia
+} // namespace minia
 
-#endif  // MINIA_BUILTIN_H_
+#endif // MINIA_BUILTIN_H_

@@ -222,14 +222,8 @@ void Minia::deduplicate(std::vector<std::shared_ptr<Expr>> &all_nodes) {
     if (node->type != ExprType::kExprTypeVariable) {
       // record all literal values
       if (node->type == ExprType::kExprTypeLiteral) {
-        bool status = false;
-        for (const std::string &fea : features_) {
-          if (node->name == fea) {
-            status = true;
-            break;
-          }
-        }
-        if (status) {
+        auto it = std::find(features_.begin(), features_.end(), node->name);
+        if (it != features_.end()) {
           auto var = std::dynamic_pointer_cast<Literal>(node);
           literals_[var->name] = var->value;
         }

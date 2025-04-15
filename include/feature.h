@@ -248,7 +248,7 @@ struct Features {
    * @param feature The feature to insert.
    */
   void insert(const std::string &name, FeaturePtr feature) {
-    values.emplace(name, std::move(feature));
+    values[name] = std::move(feature);
   }
 };
 

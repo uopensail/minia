@@ -37,7 +37,6 @@ PYBIND11_MODULE(minia, m) {
              --------------
              [transform]
              expressions = ['x = 5 + 5 + h', 'y = sqrt(x)', 'z = y * y']
-             features = ['x', 'y', 'z']
              )pbdoc")
       .def("__call__", &minia::PyMinia::call, py::arg("features"), R"pbdoc(
             Apply operations to the provided features.
