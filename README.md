@@ -63,7 +63,6 @@ import minia
 """
 [transform]
 expressions = ['x = 5 + 5 + h', 'y = sqrt(cast(x))', 'z = y*y']
-features = ['x', 'y', 'z']
 """
 
 m = minia.Minia("config.toml")
