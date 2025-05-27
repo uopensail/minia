@@ -1,0 +1,58 @@
+// features.fbs
+// /opt/homebrew/Cellar/flatbuffers/25.2.10/bin/flatc --cpp features.fbs
+namespace minia;
+
+// 定义浮点数的数组
+table FlatFloatArray {
+    value: [float];
+}
+
+// 定义浮点数
+table FlatFloatValue {
+    value: float;
+}
+
+// 定义整数的数组
+table FlatInt64Array {
+    value: [int64];
+}
+
+// 定义整数
+table FlatInt64Value {
+    value: int64;
+}
+
+// 定义字符串的数组
+table FlatStringArray {
+    value: [string];
+}
+
+// 定义字符串
+table FlatStringValue {
+    value: string;
+}
+
+// 定义空类型
+table FlatNil {}
+
+// 定义一个域
+union FlatValue {
+  FlatInt64Value,
+  FlatFloatValue,
+  FlatStringValue,
+  FlatInt64Array,
+  FlatFloatArray,
+  FlatStringArray,
+  FlatNil
+}
+
+// 定义一个字段（包含类型和值）
+table FlatValueWrapper {
+  value: FlatValue;
+}
+
+// 定义一个特征记录
+table FlatFeatures {
+  keys: [string];
+  values: [FlatValueWrapper]; // 使用包装器而不是直接使用联合类型的向量
+}

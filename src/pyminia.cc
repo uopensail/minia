@@ -38,15 +38,13 @@ PYBIND11_MODULE(minia, m) {
              [transform]
              expressions = ['x = 5 + 5 + h', 'y = sqrt(x)', 'z = y * y']
              )pbdoc")
-      .def("__call__", &minia::PyMinia::call, py::arg("features"), R"pbdoc(
+      .def("__call__", &minia::PyMinia::call, py::arg("features").noconvert(),
+           R"pbdoc(
             Apply operations to the provided features.
-            
-            Updates the `features` object by iterating over and applying
-            operations stored in the `ops_` vector.
             
             Parameters
             ----------
-            features : string
-                The features object to be updated.
+            features : byte array
+                The features object to be processed.
             )pbdoc");
 }

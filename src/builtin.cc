@@ -13,11 +13,13 @@ namespace minia {
 
 int64_t mod(const int64_t dividend, const int64_t divisor) {
   if (divisor == 0) {
+    LOG(ERROR) << "Division by zero in modulus operation\n";
     throw std::invalid_argument("Division by zero in modulus operation");
   }
 
   // Handle negative divisors
   if (divisor < 0) {
+    LOG(ERROR) << "Divisor must be positive for defined behavior\n";
     throw std::invalid_argument(
         "Divisor must be positive for defined behavior");
   }
@@ -42,11 +44,14 @@ int64_t _not(const int64_t v) { return !v; }
 
 std::string format_date(time_t t, const std::string &fmt) {
   std::tm *tm = std::localtime(&t);
-  if (!tm)
+  if (!tm) {
+    LOG(ERROR) << "Failed to format time\n";
     throw std::runtime_error("Failed to format time");
+  }
 
   char buffer[128];
   if (std::strftime(buffer, sizeof(buffer), fmt.c_str(), tm) == 0) {
+    LOG(ERROR) << "Invalid format string:" << fmt << "\n";
     throw std::invalid_argument("Invalid format string: " + fmt);
   }
   return buffer;
@@ -133,6 +138,7 @@ std::string date_add(const std::string &date_str, const int64_t interval,
     timeinfo.tm_year += interval;
     new_time = std::mktime(&timeinfo);
   } else {
+    LOG(ERROR) << "Unsupported unit: " << unit << "\n";
     throw std::invalid_argument("Unsupported unit: " + unit);
   }
 
@@ -187,6 +193,7 @@ std::string substr(const std::string &str, const int64_t pos,
 
 float z_score(const float value, const float mean, const float std_dev) {
   if (std_dev <= 0.0f) {
+    LOG(ERROR) << "Standard deviation must be positive\n";
     throw std::invalid_argument("Standard deviation must be positive");
   }
   return (value - mean) / std_dev;
@@ -195,6 +202,7 @@ float z_score(const float value, const float mean, const float std_dev) {
 float box_cox(const float value, const float lambda) {
   // Validate input constraints
   if (value <= 0.0f) {
+    LOG(ERROR) << "Input value must be positive for Box-Cox transform\n";
     throw std::invalid_argument(
         "Input value must be positive for Box-Cox transform");
   }
@@ -207,6 +215,8 @@ float box_cox(const float value, const float lambda) {
 
   // Prevent numerical instability for negative lambda
   if (lambda < 0.0f && value < 1.0f) {
+    LOG(ERROR)
+        << "Combination of lambda < 0 and value < 1 causes instability\n";
     throw std::domain_error(
         "Combination of lambda < 0 and value < 1 causes instability");
   }

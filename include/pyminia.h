@@ -18,9 +18,11 @@
 #ifndef PY_MINIA_H_
 #define PY_MINIA_H_
 
-#include "minia.h"
+#include <pybind11/buffer_info.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
+#include "minia.h"
 
 namespace py = pybind11;
 
@@ -68,12 +70,15 @@ public:
    * returns a dictionary of results, with type conversions handled for Python
    * compatibility.
    *
-   * @param features A string representing the features to process.
+   * @param features A buffer representing the features to process.
    * @return A pybind11 dictionary containing the processed feature values.
    */
-  py::dict call(const std::string &features) {
+  py::dict call(py::buffer features) {
+    py::buffer_info buf_info = features.request();
+    const char *data = static_cast<const char *>(buf_info.ptr);
+
     py::dict ret;
-    Features fea(features);
+    Features fea(data);
     minia_.call(fea);
     const auto &keys = minia_.features();
 

@@ -12,7 +12,9 @@ Minia::Minia(const std::string &config_file) {
   try {
     table = toml::parse_file(config_file);
   } catch (const toml::parse_error &err) {
-    throw std::runtime_error("Error parsing file '" + *err.source().path +
+    LOG(ERROR) << "Error parsing file: " << *err.source().path << ": "
+               << err.description() << "(" << err.source().begin.line << ")\n";
+    throw std::runtime_error("Error parsing file" + *err.source().path +
                              "': " + std::string(err.description()) + " (" +
                              std::to_string(err.source().begin.line) + ")");
   }
@@ -25,6 +27,8 @@ Minia::Minia(const std::string &config_file) {
       }
     }
   } else {
+    LOG(ERROR) << "Missing or invalid 'transform.expressions array in "
+                  "configuration.\n";
     throw std::runtime_error("Missing or invalid 'transform.expressions' "
                              "array in configuration.");
   }
@@ -41,6 +45,8 @@ Minia::Minia(const toml::table &table) {
       }
     }
   } else {
+    LOG(ERROR) << "Missing or invalid 'transform.expressions array in "
+                  "configuration.\n";
     throw std::runtime_error("Missing or invalid 'transform.expressions' "
                              "array in configuration.");
   }
@@ -142,6 +148,8 @@ void Minia::simplify(std::vector<std::shared_ptr<Expr>> &all_nodes) {
       if (it != builtins.end()) {
         node = std::make_shared<Literal>(ptr->name, it->second(args));
       } else {
+        LOG(ERROR) << "Error: Built-in function not found for: " << func
+                   << "\n";
         throw std::runtime_error("Error: Built-in function not found for " +
                                  func);
       }
@@ -274,6 +282,7 @@ void Minia::Op::operator()(Features &features) const {
   if (it != builtins.end()) {
     features.insert(out, it->second(copy_args));
   } else {
+    LOG(ERROR) << "Error: Built-in function not found for: " << name << "\n";
     throw std::runtime_error("Error: Built-in function not found for " + name);
   }
 }

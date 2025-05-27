@@ -9,6 +9,7 @@ namespace minia {
  */
 void MiniaListener::exitStart(miniaParser::StartContext *ctx) {
   if (exprs_.empty()) {
+    LOG(ERROR) << "Operation stack is empty at exitStart.\n";
     throw std::runtime_error("Operation stack is empty at exitStart.");
   }
   std::string str = ctx->IDENTIFIER()->getText();
@@ -24,6 +25,7 @@ void MiniaListener::exitStart(miniaParser::StartContext *ctx) {
  */
 void MiniaListener::exitMulExpr(miniaParser::MulExprContext *ctx) {
   if (exprs_.size() < 2) {
+    LOG(ERROR) << "Insufficient operands for multiplication.\n";
     throw std::runtime_error("Insufficient operands for multiplication.");
   }
   auto right = exprs_.top();
@@ -44,8 +46,7 @@ void MiniaListener::exitMulExpr(miniaParser::MulExprContext *ctx) {
  */
 void MiniaListener::exitStringExpr(miniaParser::StringExprContext *ctx) {
   std::string str = ctx->STRING()->getText();
-  FeaturePtr f = std::shared_ptr<Feature>(
-      new Feature{str.substr(1, str.size() - 2)}, FeatureDeleter{true});
+  FeaturePtr f = std::make_shared<Feature>(str.substr(1, str.size() - 2));
   std::shared_ptr<Expr> ptr =
       std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
   exprs_.push(ptr);
@@ -84,8 +85,10 @@ void MiniaListener::exitDecimalListExpr(
           float value = std::stof(currentNumber);
           result.push_back(value);
         } catch (const std::invalid_argument &e) {
+          LOG(ERROR) << "Invalid number format: " << currentNumber << "\n";
           throw std::runtime_error("Invalid number format: " + currentNumber);
         } catch (const std::out_of_range &e) {
+          LOG(ERROR) << "Number out of range:" << currentNumber << "\n";
           throw std::runtime_error("Number out of range: " + currentNumber);
         }
         currentNumber.clear();
@@ -110,17 +113,19 @@ void MiniaListener::exitDecimalListExpr(
         float value = std::stof(currentNumber);
         result.push_back(value);
       } catch (const std::invalid_argument &e) {
+        LOG(ERROR) << "Invalid number format: " << currentNumber << "\n";
         throw std::runtime_error("Invalid number format: " + currentNumber);
       } catch (const std::out_of_range &e) {
+        LOG(ERROR) << "Number out of range:" << currentNumber << "\n";
         throw std::runtime_error("Number out of range: " + currentNumber);
       }
     }
   } else {
+    LOG(ERROR) << "Invalid format: " << str << "\n";
     throw std::runtime_error("Invalid format: " + str);
   }
 
-  FeaturePtr f =
-      std::shared_ptr<Feature>(new Feature{result}, FeatureDeleter{true});
+  FeaturePtr f = std::make_shared<Feature>(std::move(result));
   std::shared_ptr<Expr> ptr =
       std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
   exprs_.push(ptr);
@@ -145,6 +150,7 @@ void MiniaListener::exitColumnExpr(miniaParser::ColumnExprContext *ctx) {
  */
 void MiniaListener::exitSubExpr(miniaParser::SubExprContext *ctx) {
   if (exprs_.size() < 2) {
+    LOG(ERROR) << "Insufficient operands for subtraction.\n";
     throw std::runtime_error("Insufficient operands for subtraction.");
   }
   auto right = exprs_.top();
@@ -165,6 +171,7 @@ void MiniaListener::exitSubExpr(miniaParser::SubExprContext *ctx) {
  */
 void MiniaListener::exitAddExpr(miniaParser::AddExprContext *ctx) {
   if (exprs_.size() < 2) {
+    LOG(ERROR) << "Insufficient operands for addition.\n";
     throw std::runtime_error("Insufficient operands for addition.");
   }
   auto right = exprs_.top();
@@ -187,16 +194,18 @@ void MiniaListener::exitDecimalExpr(miniaParser::DecimalExprContext *ctx) {
   std::string str = ctx->getText();
   try {
     float value = std::stof(str);
-    FeaturePtr f =
-        std::shared_ptr<Feature>(new Feature{value}, FeatureDeleter{true});
+    FeaturePtr f = std::make_shared<Feature>(std::move(value));
+
     std::shared_ptr<Expr> ptr =
         std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
     exprs_.push(ptr);
     nodes_.push_back(ptr);
     g_node_count++;
   } catch (const std::invalid_argument &e) {
+    LOG(ERROR) << "Invalid number format:" << str << "\n";
     throw std::runtime_error("Invalid number format: " + str);
   } catch (const std::out_of_range &e) {
+    LOG(ERROR) << "Number out of range: " << str << "\n";
     throw std::runtime_error("Number out of range: " + str);
   }
 }
@@ -248,11 +257,12 @@ void MiniaListener::exitStringListExpr(
       result.push_back(current.substr(1, current.size() - 2));
     }
   } else {
+    LOG(ERROR) << "Invalid format: " << str << "\n";
     throw std::runtime_error("Invalid format: " + str);
   }
 
-  FeaturePtr f =
-      std::shared_ptr<Feature>(new Feature{result}, FeatureDeleter{true});
+  FeaturePtr f = std::make_shared<Feature>(std::move(result));
+
   std::shared_ptr<Expr> ptr =
       std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
   exprs_.push(ptr);
@@ -268,16 +278,18 @@ void MiniaListener::exitIntegerExpr(miniaParser::IntegerExprContext *ctx) {
   std::string str = ctx->INTEGER()->getText();
   try {
     int64_t value = std::stoll(str);
-    FeaturePtr f =
-        std::shared_ptr<Feature>(new Feature{value}, FeatureDeleter{true});
+
+    FeaturePtr f = std::make_shared<Feature>(std::move(value));
     std::shared_ptr<Expr> ptr =
         std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
     exprs_.push(ptr);
     nodes_.push_back(ptr);
     g_node_count++;
   } catch (const std::invalid_argument &e) {
+    LOG(ERROR) << "Invalid number format: " << str << "\n";
     throw std::runtime_error("Invalid number format: " + str);
   } catch (const std::out_of_range &e) {
+    LOG(ERROR) << "Number out of range: " << str << "\n";
     throw std::runtime_error("Number out of range: " + str);
   }
 }
@@ -288,6 +300,7 @@ void MiniaListener::exitIntegerExpr(miniaParser::IntegerExprContext *ctx) {
  */
 void MiniaListener::exitDivExpr(miniaParser::DivExprContext *ctx) {
   if (exprs_.size() < 2) {
+    LOG(ERROR) << "Insufficient operands for division.\n";
     throw std::runtime_error("Insufficient operands for division.");
   }
   auto right = exprs_.top();
@@ -308,6 +321,7 @@ void MiniaListener::exitDivExpr(miniaParser::DivExprContext *ctx) {
  */
 void MiniaListener::exitModExpr(miniaParser::ModExprContext *ctx) {
   if (exprs_.size() < 2) {
+    LOG(ERROR) << "Insufficient operands for modulo operation.\n";
     throw std::runtime_error("Insufficient operands for modulo operation.");
   }
   auto right = exprs_.top();
@@ -352,8 +366,10 @@ void MiniaListener::exitIntegerListExpr(
           int64_t value = std::stoll(currentNumber);
           result.push_back(value);
         } catch (const std::invalid_argument &) {
+          LOG(ERROR) << "Invalid number format: " << currentNumber << "\n";
           throw std::runtime_error("Invalid number format: " + currentNumber);
         } catch (const std::out_of_range &) {
+          LOG(ERROR) << "Number out of range: " << currentNumber << "\n";
           throw std::runtime_error("Number out of range: " + currentNumber);
         }
         currentNumber.clear();
@@ -377,17 +393,19 @@ void MiniaListener::exitIntegerListExpr(
         int64_t value = std::stoll(currentNumber);
         result.push_back(value);
       } catch (const std::invalid_argument &) {
+        LOG(ERROR) << "Invalid number format: " << currentNumber << "\n";
         throw std::runtime_error("Invalid number format: " + currentNumber);
       } catch (const std::out_of_range &) {
+        LOG(ERROR) << "Number out of range: " << currentNumber << "\n";
         throw std::runtime_error("Number out of range: " + currentNumber);
       }
     }
   } else {
+    LOG(ERROR) << "Invalid format: " << str << "\n";
     throw std::runtime_error("Invalid format: " + str);
   }
 
-  FeaturePtr f =
-      std::shared_ptr<Feature>(new Feature{result}, FeatureDeleter{true});
+  FeaturePtr f = std::make_shared<Feature>(std::move(result));
   std::shared_ptr<Expr> ptr =
       std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
   exprs_.push(ptr);
@@ -401,6 +419,7 @@ void MiniaListener::exitIntegerListExpr(
  */
 void MiniaListener::exitAndExpr(miniaParser::AndExprContext *ctx) {
   if (exprs_.size() < 2) {
+    LOG(ERROR) << "Insufficient operands for and.\n";
     throw std::runtime_error("Insufficient operands for and.");
   }
   auto right = exprs_.top();
@@ -421,8 +440,7 @@ void MiniaListener::exitAndExpr(miniaParser::AndExprContext *ctx) {
  */
 void MiniaListener::exitTrueExpr(miniaParser::TrueExprContext *ctx) {
   int64_t value = 1;
-  FeaturePtr f =
-      std::shared_ptr<Feature>(new Feature{value}, FeatureDeleter{true});
+  FeaturePtr f = std::make_shared<Feature>(std::move(value));
   std::shared_ptr<Expr> ptr =
       std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
   exprs_.push(ptr);
@@ -436,6 +454,7 @@ void MiniaListener::exitTrueExpr(miniaParser::TrueExprContext *ctx) {
  */
 void MiniaListener::exitOrExpr(miniaParser::OrExprContext *ctx) {
   if (exprs_.size() < 2) {
+    LOG(ERROR) << "Insufficient operands for or.\n";
     throw std::runtime_error("Insufficient operands for or.");
   }
   auto right = exprs_.top();
@@ -456,8 +475,7 @@ void MiniaListener::exitOrExpr(miniaParser::OrExprContext *ctx) {
  */
 void MiniaListener::exitFalseExpr(miniaParser::FalseExprContext *ctx) {
   int64_t value = 0;
-  FeaturePtr f =
-      std::shared_ptr<Feature>(new Feature{value}, FeatureDeleter{true});
+  FeaturePtr f = std::make_shared<Feature>(std::move(value));
   std::shared_ptr<Expr> ptr =
       std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
   exprs_.push(ptr);
@@ -471,6 +489,7 @@ void MiniaListener::exitFalseExpr(miniaParser::FalseExprContext *ctx) {
  */
 void MiniaListener::exitNotExpr(miniaParser::NotExprContext *ctx) {
   if (exprs_.size() < 1) {
+    LOG(ERROR) << "Insufficient operands for not.\n";
     throw std::runtime_error("Insufficient operands for not.");
   }
   auto expr = exprs_.top();
@@ -496,6 +515,7 @@ void MiniaListener::exitNotExpr(miniaParser::NotExprContext *ctx) {
 void MiniaListener::exitGreaterThanEqualExpr(
     miniaParser::GreaterThanEqualExprContext *ctx) {
   if (exprs_.size() < 2) {
+    LOG(ERROR) << "Insufficient operands for gte.\n";
     throw std::runtime_error("Insufficient operands for gte.");
   }
   auto right = exprs_.top();
@@ -522,6 +542,7 @@ void MiniaListener::exitGreaterThanEqualExpr(
 void MiniaListener::exitLessThanEqualExpr(
     miniaParser::LessThanEqualExprContext *ctx) {
   if (exprs_.size() < 2) {
+    LOG(ERROR) << "Insufficient operands for lte.\n";
     throw std::runtime_error("Insufficient operands for lte.");
   }
   auto right = exprs_.top();
@@ -547,6 +568,7 @@ void MiniaListener::exitLessThanEqualExpr(
  */
 void MiniaListener::exitLessThanExpr(miniaParser::LessThanExprContext *ctx) {
   if (exprs_.size() < 2) {
+    LOG(ERROR) << "Insufficient operands for lt.\n";
     throw std::runtime_error("Insufficient operands for lt.");
   }
   auto right = exprs_.top();
@@ -573,6 +595,7 @@ void MiniaListener::exitLessThanExpr(miniaParser::LessThanExprContext *ctx) {
 void MiniaListener::exitGreaterThanExpr(
     miniaParser::GreaterThanExprContext *ctx) {
   if (exprs_.size() < 2) {
+    LOG(ERROR) << "Insufficient operands for gt.\n";
     throw std::runtime_error("Insufficient operands for gt.");
   }
   auto right = exprs_.top();
@@ -598,6 +621,7 @@ void MiniaListener::exitGreaterThanExpr(
  */
 void MiniaListener::exitNotEqualExpr(miniaParser::NotEqualExprContext *ctx) {
   if (exprs_.size() < 2) {
+    LOG(ERROR) << "Insufficient operands for neq.\n";
     throw std::runtime_error("Insufficient operands for neq.");
   }
   auto right = exprs_.top();
@@ -623,6 +647,7 @@ void MiniaListener::exitNotEqualExpr(miniaParser::NotEqualExprContext *ctx) {
  */
 void MiniaListener::exitEqualExpr(miniaParser::EqualExprContext *ctx) {
   if (exprs_.size() < 2) {
+    LOG(ERROR) << "Insufficient operands for eq.\n";
     throw std::runtime_error("Insufficient operands for eq.");
   }
   auto right = exprs_.top();
@@ -651,6 +676,7 @@ void MiniaListener::exitFuncCall(miniaParser::FuncCallContext *ctx) {
     std::vector<miniaParser::ExprContext *> exprs = list->expr();
     size = exprs.size();
     if (exprs_.size() < size) {
+      LOG(ERROR) << "Insufficient args for func call.\n";
       throw std::runtime_error("Insufficient args for func call.");
     }
   }

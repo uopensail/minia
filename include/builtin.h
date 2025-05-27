@@ -74,10 +74,8 @@ FeaturePtr invoke(const std::vector<FeaturePtr> &args) {
     return nullptr;
   }
 
-  return std::shared_ptr<Feature>(
-      new Feature{
-          helper<Func, Ts...>(args, std::make_index_sequence<sizeof...(Ts)>{})},
-      FeatureDeleter{true});
+  return std::make_shared<Feature>(std::move(
+      helper<Func, Ts...>(args, std::make_index_sequence<sizeof...(Ts)>{})));
 }
 
 /**
@@ -140,6 +138,7 @@ auto cross_apply(const std::vector<T0> &a, const std::vector<T1> &b) {
 template <auto Func, typename T0, typename T1>
 auto map_apply(const std::vector<T0> &a, const std::vector<T1> &b) {
   if (a.size() != b.size()) {
+    LOG(ERROR) << "Input vectors must have the same size.\n";
     throw std::invalid_argument("Input vectors must have the same size.");
   }
 
@@ -264,8 +263,10 @@ template <typename T> T _abs(const T &x) { return x < 0 ? -x : x; }
  */
 template <typename T>
 T min(const std::vector<T> &src) { // Changed from float to T
-  if (src.empty())
+  if (src.empty()) {
+    LOG(ERROR) << "Cannot find min of empty vector.\n";
     throw std::domain_error("Cannot find min of empty vector");
+  }
   T ret = src[0];
   for (auto &v : src) {
     ret = std::min(ret, v);
@@ -281,8 +282,10 @@ T min(const std::vector<T> &src) { // Changed from float to T
  * @throws std::invalid_argument if src is empty
  */
 template <typename T> T max(const std::vector<T> &src) {
-  if (src.empty())
+  if (src.empty()) {
+    LOG(ERROR) << "Cannot find max of empty vector.\n";
     throw std::domain_error("Cannot find max of empty vector");
+  }
   T ret = src[0];
   for (auto &v : src) {
     ret = std::max(ret, v);
@@ -298,8 +301,11 @@ template <typename T> T max(const std::vector<T> &src) {
  * @throws std::invalid_argument if src is empty
  */
 template <typename T> float average(const std::vector<T> &src) {
-  if (src.empty())
+  if (src.empty()) {
+    LOG(ERROR) << "Cannot find average of empty vector.\n";
     throw std::domain_error("Cannot compute average of empty vector");
+  }
+
   T sum = std::accumulate(src.begin(), src.end(), T{0});
   return static_cast<float>(sum) / src.size();
 }
@@ -361,8 +367,10 @@ template <typename T> float norm(const std::vector<T> &src, const float n) {
  * @throws std::invalid_argument if min == max
  */
 template <typename T> float min_max(const T &v, const T &min, const T &max) {
-  if (min == max)
+  if (min == max) {
+    LOG(ERROR) << "Min and max cannot be equal.\n";
     throw std::invalid_argument("min and max cannot be equal");
+  }
   return static_cast<float>(v - min) / static_cast<float>(max - min);
 }
 
@@ -413,6 +421,7 @@ std::vector<int64_t> repeat_bucketize(const std::vector<T> &v,
 template <typename T>
 std::vector<float> normalize(const std::vector<T> &src, const float norm) {
   if (norm < 1) {
+    LOG(ERROR) << "Norm degree must be >= 1.\n";
     throw std::invalid_argument("Norm degree must be >= 1");
   }
   const float norm_value = [&]() {

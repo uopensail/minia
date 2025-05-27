@@ -20,14 +20,16 @@
 
 #pragma once
 
-#include "common.h"
-#include "json.hpp"
 #include <functional>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
 #include <variant>
 #include <vector>
+
+#include "common.h"
+#include "features_generated.h"
+#include "json.hpp"
 
 namespace minia {
 
@@ -148,24 +150,6 @@ private:
   }
 };
 
-/**
- * @brief Deleter for Features, used with smart pointers.
- */
-struct FeatureDeleter {
-  bool del; ///< Flag to determine if the feature should be deleted
-
-  /**
-   * @brief Deletes the feature if the flag is set.
-   *
-   * @param ptr The feature pointer to delete.
-   */
-  void operator()(Feature *ptr) const {
-    if (del && ptr) {
-      delete ptr;
-    }
-  }
-};
-
 /// Alias for a shared pointer to a Feature
 using FeaturePtr = std::shared_ptr<Feature>;
 
@@ -177,56 +161,74 @@ struct Features {
       values; ///< Map of feature names to feature pointers
 
   Features() = default;
+
   /**
-   * @brief Constructs features from a JSON string.
+   * @brief Constructs features from a FlatBuffers.
    *
-   * @param value The JSON string representing features.
+   * @param value The FlatBuffers representing features.
    */
   explicit Features(const char *value) {
-    const auto parse_feature_from_json =
-        [](const nlohmann::json &data) -> FeaturePtr {
+    const FlatFeatures *data = flatbuffers::GetRoot<FlatFeatures>(value);
+
+    const size_t size = data->values()->size();
+    for (size_t i = 0; i < size; i++) {
+      const FlatValueWrapper *field = data->values()->Get(i);
+      const flatbuffers::String *key = data->keys()->Get(i);
+      const FlatValue type = field->value_type();
+
       FeaturePtr ptr = nullptr;
-      DataType type = data["type"].get<DataType>();
       switch (type) {
-      case DataType::kInt64:
-        ptr = std::make_shared<Feature>(data["value"].get<int64_t>());
-        break;
-      case DataType::kFloat32:
-        ptr = std::make_shared<Feature>(data["value"].get<float>());
-        break;
-      case DataType::kString:
-        ptr = std::make_shared<Feature>(data["value"].get<std::string>());
-        break;
-      case DataType::kInt64s:
+      case FlatValue::FlatValue_FlatInt64Value:
         ptr = std::make_shared<Feature>(
-            data["value"].get<std::vector<int64_t>>());
+            field->value_as_FlatInt64Value()->value());
         break;
-      case DataType::kFloat32s:
-        ptr =
-            std::make_shared<Feature>(data["value"].get<std::vector<float>>());
-        break;
-      case DataType::kStrings:
+      case FlatValue::FlatValue_FlatFloatValue:
         ptr = std::make_shared<Feature>(
-            data["value"].get<std::vector<std::string>>());
+            field->value_as_FlatFloatValue()->value());
         break;
+      case FlatValue::FlatValue_FlatStringValue:
+        ptr = std::make_shared<Feature>(
+            field->value_as_FlatStringValue()->value()->str());
+        break;
+      case FlatValue::FlatValue_FlatInt64Array: {
+        const auto *array = field->value_as_FlatInt64Array()->value();
+        std::vector<int64_t> value;
+        value.reserve(array->size());
+        value.assign(array->begin(), array->end());
+        ptr = std::make_shared<Feature>(std::move(value));
+        break;
+      }
+      case FlatValue::FlatValue_FlatFloatArray: {
+        const auto *array = field->value_as_FlatFloatArray()->value();
+        std::vector<float> value;
+        value.reserve(array->size());
+        value.assign(array->begin(), array->end());
+        ptr = std::make_shared<Feature>(std::move(value));
+        break;
+      }
+      case FlatValue::FlatValue_FlatStringArray: {
+        const auto *array = field->value_as_FlatStringArray()->value();
+        std::vector<std::string> value;
+        value.reserve(array->size());
+        for (const auto &s : *array) {
+          value.emplace_back(s->str());
+        }
+        ptr = std::make_shared<Feature>(std::move(value));
+      }
       default:
         break;
       }
-      return ptr;
-    };
 
-    const auto doc = nlohmann::json::parse(value);
-    for (const auto &kv : doc.items()) {
-      if (FeaturePtr p = parse_feature_from_json(kv.value()); p != nullptr) {
-        values.emplace(kv.key(), std::move(p));
+      if (ptr) {
+        values[key->str()] = ptr;
       }
     }
   }
 
   /**
-   * @brief Constructs features from a JSON string.
+   * @brief Constructs features from a FlatBuffers string.
    *
-   * @param value The JSON string representing features.
+   * @param value The FlatBuffers string representing features.
    */
   explicit Features(const std::string &value) : Features(value.c_str()) {}
 
