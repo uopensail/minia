@@ -48,6 +48,7 @@ find_package(Threads REQUIRED)
 
 # Source files
 set(MINIA_SOURCES
+    src/common.cc
     src/builtin.cc
     src/minia.cc
     src/MurmurHash3.cc
@@ -163,15 +164,13 @@ if(BUILD_STATIC_LIBS)
     )
 endif()
 
-# Python bindings
-option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
+# Optional shared C library
+option(BUILD_SHARED_C_LIBS "Build shared C libraries" ON)
 
-if(BUILD_PYTHON_BINDINGS)
-    configure_pybind11()
+if(BUILD_SHARED_C_LIBS)
+    add_library(cminia_shared SHARED ${MINIA_SOURCES} src/cminia.cc)
 
-    pybind11_add_module(minia src/pyminia.cc)
-
-    target_include_directories(minia
+    target_include_directories(cminia_shared
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/grammar>
@@ -183,7 +182,50 @@ if(BUILD_PYTHON_BINDINGS)
         ${GLOG_INCLUDE_DIR}
     )
 
-    target_link_libraries(minia PRIVATE
+    target_link_directories(cminia_shared PRIVATE
+        ${ANTLR4_LIBRARY_DIR}
+        ${FLATBUFFERS_LIBRARY_DIR}
+        ${GFLAGS_LIBRARY_DIR}
+        ${GLOG_LIBRARY_DIR}
+    )
+
+    target_link_libraries(cminia_shared PRIVATE
+        PRIVATE
+        ${ANTLR4_LIBRARY_DIR}/libantlr4-runtime.a
+        ${FLATBUFFERS_LIBRARY_DIR}/libflatbuffers.a
+        ${GFLAGS_LIBRARY_DIR}/libgflags.a
+        ${GLOG_LIBRARY_DIR}/libglog.a
+        Threads::Threads
+        ${CMAKE_DL_LIBS}
+    )
+
+    set_target_properties(cminia_shared PROPERTIES
+        OUTPUT_NAME cminia
+        POSITION_INDEPENDENT_CODE ON
+    )
+endif()
+
+# Python bindings
+option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
+
+if(BUILD_PYTHON_BINDINGS)
+    configure_pybind11()
+
+    pybind11_add_module(pyminia src/pyminia.cc)
+
+    target_include_directories(pyminia
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/grammar>
+        $<INSTALL_INTERFACE:include>
+        PRIVATE
+        ${ANTLR4_INCLUDE_DIR}
+        ${FLATBUFFERS_INCLUDE_DIR}
+        ${GFLAGS_INCLUDE_DIR}
+        ${GLOG_INCLUDE_DIR}
+    )
+
+    target_link_libraries(pyminia PRIVATE
         minia_static
         ${ANTLR4_LIBRARY_DIR}/libantlr4-runtime.a
         ${FLATBUFFERS_LIBRARY_DIR}/libflatbuffers.a
@@ -193,8 +235,8 @@ if(BUILD_PYTHON_BINDINGS)
         ${CMAKE_DL_LIBS}
     )
 
-    set_target_properties(minia PROPERTIES
-        OUTPUT_NAME minia
+    set_target_properties(pyminia PROPERTIES
+        OUTPUT_NAME pyminia
         SUFFIX "${PYTHON_MODULE_EXTENSION}"
     )
 endif()
@@ -228,7 +270,6 @@ install(EXPORT miniaTargets
     NAMESPACE minia::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/minia
 )
-
 
 # Print the configuration information
 message(STATUS "=== Minia Build Configuration ===")

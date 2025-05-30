@@ -1,9 +1,9 @@
 package wrapper
 
 /*
-#cgo CFLAGS: -I../../../include
-#cgo LDFLAGS: -L../../..build -lcminia
+#cgo LDFLAGS: -L. -lcminia
 
+#cgo CFLAGS: -I../../../include
 #include <stdlib.h>
 #include "cminia.h"
 */
@@ -247,12 +247,10 @@ func NewMiniaClient(configPath string) *MiniaClient {
  * - Input string conversion to C string
  * - Result feature set creation
  */
-func (mc *MiniaClient) Call(input string) *FeatureSet {
-	cInput := C.CString(input)
-	defer C.free(unsafe.Pointer(cInput))
-
+func (mc *MiniaClient) Call(data []byte) *FeatureSet {
+	cData := (*C.char)(unsafe.Pointer(&data[0]))
 	return NewFeatureSet(
-		C.minia_call(mc.instancePtr, cInput),
+		C.minia_call(mc.instancePtr, cData),
 		mc.featureNames,
 	)
 }

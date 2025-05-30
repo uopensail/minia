@@ -25,34 +25,19 @@
 #include <variant>
 #include <vector>
 
-// #define ENABLE_GLOG
+#define ENABLE_GLOG
 
 #ifdef ENABLE_GLOG
 #include <glog/logging.h>
-#else
-#include <iostream>
-#endif // ENABLE_GLOG
-
-namespace minia {
-
-/**
- * @brief Enum representing various data types.
- *
- * This enum is used to define a set of data types with specific integer values
- * assigned to each type, facilitating easy identification and usage in data
- * handling.
- */
-enum DataType : int8_t {
-  kInt64 = 0,  ///< Represents a 64-bit integer
-  kFloat32,    ///< Represents a 32-bit floating-point number
-  kString,     ///< Represents a string
-  kInt64s,     ///< Represents a vector of 64-bit integers
-  kFloat32s,   ///< Represents a vector of 32-bit floating-point numbers
-  kStrings,    ///< Represents a vector of strings
-  kError = 127 ///< Represents an error state or undefined data type
+enum LogLevel {
+  INFO = google::INFO,
+  WARNING = google::WARNING,
+  ERROR = google::ERROR,
+  FATAL = google::FATAL
 };
 
-} // namespace minia
+#else
+#include <iostream>
 
 /**
  * @enum LogLevel
@@ -79,15 +64,59 @@ enum LogLevel { INFO, WARNING, ERROR, FATAL };
  */
 static inline std::ostream &LOG(LogLevel level) {
   switch (level) {
-  case INFO:
-  case WARNING:
-    return std::cout; // Info and warning output to std::cout
-  case ERROR:
-  case FATAL:
-    return std::cerr; // Error and fatal error output to std::cerr
-  default:
-    return std::cout; // Default output to std::cout
+    case INFO:
+    case WARNING:
+      return std::cout;  // Info and warning output to std::cout
+    case ERROR:
+    case FATAL:
+      return std::cerr;  // Error and fatal error output to std::cerr
+    default:
+      return std::cout;  // Default output to std::cout
   }
 }
 
-#endif // MINIA_COMMON_H_
+#endif  // ENABLE_GLOG
+
+/**
+ * @brief Initialize the minia logging system with specified directory and log
+ * level
+ *
+ * This function initializes Google Logging (glog) for the minia application
+ * with customized settings including log directory, log level, and output
+ * configurations. The function is only active when ENABLE_GLOG is defined.
+ *
+ * @param log_dir Directory path where log files will be stored. If nullptr or
+ * empty, logs will only output to stderr at ERROR level
+ * @param log_level Minimum log level to output (0=INFO, 1=WARNING, 2=ERROR,
+ * 3=FATAL)
+ *
+ * @note This function requires Google Logging library and ENABLE_GLOG macro to
+ * be defined
+ * @warning If log_dir is invalid or inaccessible, logging may fail silently
+ *
+ * @see https://github.com/google/glog for Google Logging documentation
+ */
+void enable_glog(const char *log_dir, int32_t log_level);
+
+namespace minia {
+
+/**
+ * @brief Enum representing various data types.
+ *
+ * This enum is used to define a set of data types with specific integer values
+ * assigned to each type, facilitating easy identification and usage in data
+ * handling.
+ */
+enum DataType : int8_t {
+  kInt64 = 0,   ///< Represents a 64-bit integer
+  kFloat32,     ///< Represents a 32-bit floating-point number
+  kString,      ///< Represents a string
+  kInt64s,      ///< Represents a vector of 64-bit integers
+  kFloat32s,    ///< Represents a vector of 32-bit floating-point numbers
+  kStrings,     ///< Represents a vector of strings
+  kError = 127  ///< Represents an error state or undefined data type
+};
+
+}  // namespace minia
+
+#endif  // MINIA_COMMON_H_

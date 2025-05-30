@@ -1,4 +1,3 @@
-
 #include "cminia.h"
 
 #include "common.h"
@@ -6,25 +5,7 @@
 #include "minia.h"
 
 void minia_init_log(const char *log_dir, int32_t log_level) {
-#ifdef ENABLE_GLOG
-  google::InitGoogleLogging("ranke_model");
-  FLAGS_log_prefix = true;  // Enable prefixes
-  FLAGS_max_log_size = 100; // Unit: MB
-  FLAGS_stop_logging_if_full_disk =
-      true; // Writes are stopped when the disk is full
-  FLAGS_logtostderr =
-      false; // Disable all logs to stderr (controlled by SetStderrLogging)
-  FLAGS_minloglevel = log_level;
-  FLAGS_timestamp_in_logfile_name = false;
-  if (log_dir != nullptr && strlen(log_dir) > 0) {
-    std::string log_path = std::string(log_dir) + "/minia.log";
-    google::SetLogDestination(google::INFO, log_path.c_str());
-    google::SetLogDestination(google::WARNING, log_path.c_str());
-    google::SetLogDestination(google::ERROR, log_path.c_str());
-    google::SetStderrLogging(
-        google::ERROR); // Sets the minimum level of console output
-  }
-#endif
+  enable_glog(log_dir, log_level);
 }
 
 void *minia_create(const char *config_path) {
@@ -66,6 +47,7 @@ void *minia_call(void *m, const char *data) {
   } catch (...) {
     LOG(ERROR) << "Minia call unknown exception caught!\n";
   }
+  return nullptr;
 }
 
 void *minia_get_feature(void *features, const char *key, int32_t *type) {

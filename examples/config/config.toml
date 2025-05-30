@@ -1,4 +1,7 @@
 [transform]
-expressions = ['I_7_T=hash(concat("I_7", to_string(ceil(I_7))))',
-    'I_8_T=hash(concat(to_string(ceil(I_7)), to_string(ceil(I_8))))']
-features = ['I_8_T']
+expressions = [
+    'A=col_1 + 5',
+    'B=sqrt(abs(col_2))',
+    'C=hash(concat(col_3, "test_minia"))',
+]
+features = ['A', 'B', 'C']

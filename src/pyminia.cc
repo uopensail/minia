@@ -6,7 +6,7 @@
  * Provides the Minia class for feature processing and hashing through
  * configuration-based expression computation.
  */
-PYBIND11_MODULE(minia, m) {
+PYBIND11_MODULE(pyminia, m) {
   m.doc() = R"pbdoc(
         Minia: Feature Processing and Hashing
         =====================================
@@ -21,9 +21,10 @@ PYBIND11_MODULE(minia, m) {
    * a TOML configuration file, facilitating operations on features.
    */
   py::class_<minia::PyMinia>(m, "Minia")
-      .def(py::init<const std::string &>(), py::arg("config_file"),
+      .def(py::init<const std::string &, const std::string &>(),
+           py::arg("config_file"), py::arg("log_dir") = std::string("./logs"),
            R"pbdoc(
-             Initialize Minia with a configuration file.
+             Initialize Minia with a configuration file and log dir.
              
              Parses expressions and features from a TOML configuration
              file, extracting necessary data and managing parsing errors.
@@ -32,6 +33,8 @@ PYBIND11_MODULE(minia, m) {
              ----------
              config_file : str
                  Path to the configuration file.
+             log_dir : str
+                 Dir for the log files.
              
              Example config
              --------------

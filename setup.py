@@ -64,71 +64,6 @@ class CMakeBuild(build_ext):
         else:
             return ".so"
     
-    def _find_dependency_libs(self, build_dir):
-        """Find dependency library files in build directory"""
-        dep_libs = []
-        lib_patterns = [
-            f"*antlr4*{self.lib_ext}",
-            f"*flatbuffers*{self.lib_ext}",
-            f"*gflags*{self.lib_ext}",
-            f"*glog*{self.lib_ext}",
-        ]
-        
-        # Search directories
-        search_dirs = [
-            build_dir,
-            build_dir / "_deps",
-            build_dir / "lib",
-            build_dir / "bin",
-        ]
-        
-        # Add dependency subdirectories
-        deps_dir = build_dir / "_deps"
-        if deps_dir.exists():
-            for dep_dir in deps_dir.iterdir():
-                if dep_dir.is_dir():
-                    search_dirs.extend([
-                        dep_dir / "lib",
-                        dep_dir / "bin",
-                        dep_dir / "build" / "lib",
-                        dep_dir / "build" / "bin",
-                        dep_dir / "src" / f"{dep_dir.name}-build" / "lib",
-                        dep_dir / "src" / f"{dep_dir.name}-build" / "bin",
-                    ])
-        
-        # Search for libraries
-        for search_dir in search_dirs:
-            if not search_dir.exists():
-                continue
-                
-            for pattern in lib_patterns:
-                for lib_file in search_dir.rglob(pattern):
-                    if lib_file.is_file() and lib_file not in dep_libs:
-                        dep_libs.append(lib_file)
-        
-        return dep_libs
-    
-    def _copy_dependency_libs(self, dep_libs, target_dir):
-        """Copy dependency libraries to target directory"""
-        if not dep_libs:
-            print("Warning: No dependency libraries found")
-            return
-            
-        target_dir.mkdir(parents=True, exist_ok=True)
-        
-        for lib_file in dep_libs:
-            target_file = target_dir / lib_file.name
-            try:
-                shutil.copy2(lib_file, target_file)
-                print(f"Copied: {lib_file.name} -> {target_file}")
-                
-                # Fix install_name on macOS
-                if self.system == "Darwin" and target_file.suffix == ".dylib":
-                    self._fix_macos_install_name(target_file)
-                    
-            except Exception as e:
-                print(f"Warning: Failed to copy {lib_file}: {e}")
-    
     def _fix_macos_install_name(self, lib_file):
         """Fix macOS dynamic library install_name"""
         try:
@@ -146,9 +81,9 @@ class CMakeBuild(build_ext):
         """Copy the built extension to target directory"""
         # Look for the Python extension in build directory
         extension_patterns = [
-            "minia*.so",
-            "minia*.pyd", 
-            "minia*.dylib"
+            "pyminia*.so",
+            "pyminia*.pyd", 
+            "pyminia*.dylib"
         ]
         
         for pattern in extension_patterns:
@@ -169,13 +104,14 @@ class CMakeBuild(build_ext):
         # Get extension output path
         ext_fullpath = Path.cwd() / self.get_ext_fullpath(ext.name)
         extdir = ext_fullpath.parent.resolve()
+        extdir.mkdir(parents=True, exist_ok=True)
 
         # Build configuration
         debug = int(os.environ.get("DEBUG", 0)) if self.debug is None else self.debug
         cfg = "Debug" if debug else "Release"
         
         # Create build directory
-        build_temp = Path(self.build_temp) / ext.name
+        build_temp = Path(self.build_temp).resolve() / ext.name
         build_temp.mkdir(parents=True, exist_ok=True)
         
         print(f"Extension output directory: {extdir}")
@@ -187,11 +123,12 @@ class CMakeBuild(build_ext):
             f"-DCMAKE_BUILD_TYPE={cfg}",
             "-DBUILD_PYTHON_BINDINGS=ON",
             "-DBUILD_SHARED_LIBS=ON",
+            "-DBUILD_STATIC_LIBS=ON",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
             # Set output directories relative to build directory
-            f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={build_temp}/lib",
-            f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY={build_temp}/bin",
-            f"-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY={build_temp}/lib",
+            f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={build_temp}",
+            f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY={build_temp}",
+            f"-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY={build_temp}",
         ]
         
         # Force generator based on platform
@@ -206,9 +143,9 @@ class CMakeBuild(build_ext):
             cmake_args += ["-A", plat_to_cmake.get(self.plat_name, "x64")]
             # For multi-config generators, set per-config output directories
             cmake_args += [
-                f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{cfg.upper()}={build_temp}/lib",
-                f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{cfg.upper()}={build_temp}/bin",
-                f"-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_{cfg.upper()}={build_temp}/lib",
+                f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{cfg.upper()}={build_temp}",
+                f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{cfg.upper()}={build_temp}",
+                f"-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_{cfg.upper()}={build_temp}",
             ]
         else:
             # Force Unix Makefiles on Unix-like systems
@@ -278,8 +215,9 @@ class CMakeBuild(build_ext):
         if not self._copy_extension_to_target(build_temp, extdir):
             print("Warning: Could not find built extension, checking common locations...")
             # Check if extension was built in current directory (fallback)
-            for pattern in ["minia*.so", "minia*.pyd", "minia*.dylib"]:
+            for pattern in ["pyminia*.so", "pyminia*.pyd", "pyminia*.dylib"]:
                 for ext_file in Path(".").glob(pattern):
+                    print(ext_file)
                     if ext_file.is_file():
                         target_file = extdir / ext_file.name
                         shutil.copy2(ext_file, target_file)
@@ -287,21 +225,6 @@ class CMakeBuild(build_ext):
                         # Clean up the file from current directory
                         ext_file.unlink()
                         break
-        
-        # Find and copy dependency libraries
-        print("Searching for dependency libraries...")
-        dep_libs = self._find_dependency_libs(build_temp)
-        
-        if dep_libs:
-            print(f"Found {len(dep_libs)} dependency libraries:")
-            for lib in dep_libs:
-                print(f"  - {lib}")
-            
-            # Copy libraries to extension directory
-            self._copy_dependency_libs(dep_libs, extdir)
-        else:
-            print("No dependency libraries found to copy")
-
 
 # Read long description
 def get_long_description():
@@ -315,7 +238,7 @@ def get_long_description():
 
 # Setup configuration
 setup(
-    name="minia",
+    name="pyminia",
     version="1.0.0",
     description="Python wrapper for minia, a C++ tool for feature transformation and hashing.",
     long_description=get_long_description(),
