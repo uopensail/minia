@@ -23,6 +23,12 @@
 extern "C" {
 #endif
 
+/// Initialize environment
+/// @param log_dir Specify the log output path
+/// @param log_level Log level setting INFO = 0, WARNING = 1, ERROR = 2, FATAL =
+/// 3
+void minia_init_log(const char *log_dir, int32_t log_level);
+
 /**
  * @brief Creates a new Minia instance
  * @param config_path Path to configuration file
@@ -74,8 +80,8 @@ void minia_del_feature(void *feature, int32_t type);
 void minia_del_features(void *features);
 
 #ifdef __cplusplus
-} // extern "C"
+}  // extern "C"
 
 #endif
 
-#endif // C_MINIA_H_
+#endif  // C_MINIA_H_

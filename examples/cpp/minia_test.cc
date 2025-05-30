@@ -3,5 +3,6 @@
 
 int main() {
     minia::Minia a("../config/config.toml");
+    
     return 0;
 }

@@ -1,0 +1,48 @@
+// features.fbs
+// /opt/homebrew/Cellar/flatbuffers/25.2.10/bin/flatc --cpp features.fbs
+namespace minia;
+
+table FlatFloatArray {
+    value: [float];
+}
+
+table FlatFloatValue {
+    value: float;
+}
+
+table FlatInt64Array {
+    value: [int64];
+}
+
+table FlatInt64Value {
+    value: int64;
+}
+
+table FlatStringArray {
+    value: [string];
+}
+
+table FlatStringValue {
+    value: string;
+}
+
+table FlatNil {}
+
+union FlatValue {
+  FlatInt64Value,
+  FlatFloatValue,
+  FlatStringValue,
+  FlatInt64Array,
+  FlatFloatArray,
+  FlatStringArray,
+  FlatNil
+}
+
+table FlatValueWrapper {
+  value: FlatValue;
+}
+
+table FlatFeatures {
+  keys: [string];
+  values: [FlatValueWrapper];
+}

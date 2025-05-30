@@ -20,14 +20,16 @@
 
 #pragma once
 
-#include "common.h"
-#include "json.hpp"
 #include <functional>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
 #include <variant>
 #include <vector>
+
+#include "common.h"
+#include "features_generated.h"
+#include "json.hpp"
 
 namespace minia {
 
@@ -43,9 +45,10 @@ using Value = std::variant<int64_t, float, std::string, std::vector<int64_t>,
  * @brief Macro to register a C++ type with its corresponding DataType enum
  * value.
  */
-#define REGISTER_TYPE_ID(CppType, EnumValue)                                   \
-  template <> struct TypeID<CppType> {                                         \
-    static constexpr DataType value = EnumValue;                               \
+#define REGISTER_TYPE_ID(CppType, EnumValue)     \
+  template <>                                    \
+  struct TypeID<CppType> {                       \
+    static constexpr DataType value = EnumValue; \
   }
 
 /**
@@ -53,7 +56,8 @@ using Value = std::variant<int64_t, float, std::string, std::vector<int64_t>,
  *
  * Provides a default value of DataType::kError for unsupported types.
  */
-template <typename T> struct TypeID {
+template <typename T>
+struct TypeID {
   static constexpr DataType value = DataType::kError;
 };
 
@@ -71,8 +75,8 @@ REGISTER_TYPE_ID(std::vector<std::string>, DataType::kStrings);
  * @brief Represents a feature with a type and a value.
  */
 struct Feature {
-  Value value;   ///< The value of the feature
-  DataType type; ///< The type of the feature
+  Value value;    ///< The value of the feature
+  DataType type;  ///< The type of the feature
 
   /**
    * @brief Constructs a feature from a given value.
@@ -100,7 +104,8 @@ struct Feature {
    * @return The value cast to the specified type.
    * @throws std::runtime_error if the type is unsupported or mismatched.
    */
-  template <typename T> const T &get() const {
+  template <typename T>
+  const T &get() const {
     validate_type<T>();
     return std::get<T>(value);
   }
@@ -129,7 +134,7 @@ struct Feature {
         value, f.value);
   }
 
-private:
+ private:
   /**
    * @brief Validates the type of the feature.
    *
@@ -138,30 +143,13 @@ private:
    * @tparam T The expected type.
    * @throws std::runtime_error if the type is unsupported or mismatched.
    */
-  template <typename T> void validate_type() const {
+  template <typename T>
+  void validate_type() const {
     if constexpr (TypeID<T>::value == DataType::kError) {
       throw std::runtime_error("Unsupported type");
     }
     if (TypeID<T>::value != type) {
       throw std::runtime_error("Type mismatch");
-    }
-  }
-};
-
-/**
- * @brief Deleter for Features, used with smart pointers.
- */
-struct FeatureDeleter {
-  bool del; ///< Flag to determine if the feature should be deleted
-
-  /**
-   * @brief Deletes the feature if the flag is set.
-   *
-   * @param ptr The feature pointer to delete.
-   */
-  void operator()(Feature *ptr) const {
-    if (del && ptr) {
-      delete ptr;
     }
   }
 };
@@ -174,59 +162,77 @@ using FeaturePtr = std::shared_ptr<Feature>;
  */
 struct Features {
   std::unordered_map<std::string, FeaturePtr>
-      values; ///< Map of feature names to feature pointers
+      values;  ///< Map of feature names to feature pointers
 
   Features() = default;
+
   /**
-   * @brief Constructs features from a JSON string.
+   * @brief Constructs features from a FlatBuffers.
    *
-   * @param value The JSON string representing features.
+   * @param value The FlatBuffers representing features.
    */
   explicit Features(const char *value) {
-    const auto parse_feature_from_json =
-        [](const nlohmann::json &data) -> FeaturePtr {
-      FeaturePtr ptr = nullptr;
-      DataType type = data["type"].get<DataType>();
-      switch (type) {
-      case DataType::kInt64:
-        ptr = std::make_shared<Feature>(data["value"].get<int64_t>());
-        break;
-      case DataType::kFloat32:
-        ptr = std::make_shared<Feature>(data["value"].get<float>());
-        break;
-      case DataType::kString:
-        ptr = std::make_shared<Feature>(data["value"].get<std::string>());
-        break;
-      case DataType::kInt64s:
-        ptr = std::make_shared<Feature>(
-            data["value"].get<std::vector<int64_t>>());
-        break;
-      case DataType::kFloat32s:
-        ptr =
-            std::make_shared<Feature>(data["value"].get<std::vector<float>>());
-        break;
-      case DataType::kStrings:
-        ptr = std::make_shared<Feature>(
-            data["value"].get<std::vector<std::string>>());
-        break;
-      default:
-        break;
-      }
-      return ptr;
-    };
+    const FlatFeatures *data = flatbuffers::GetRoot<FlatFeatures>(value);
 
-    const auto doc = nlohmann::json::parse(value);
-    for (const auto &kv : doc.items()) {
-      if (FeaturePtr p = parse_feature_from_json(kv.value()); p != nullptr) {
-        values.emplace(kv.key(), std::move(p));
+    const size_t size = data->values()->size();
+    for (size_t i = 0; i < size; i++) {
+      const FlatValueWrapper *field = data->values()->Get(i);
+      const flatbuffers::String *key = data->keys()->Get(i);
+      const FlatValue type = field->value_type();
+
+      FeaturePtr ptr = nullptr;
+      switch (type) {
+        case FlatValue::FlatValue_FlatInt64Value:
+          ptr = std::make_shared<Feature>(
+              field->value_as_FlatInt64Value()->value());
+          break;
+        case FlatValue::FlatValue_FlatFloatValue:
+          ptr = std::make_shared<Feature>(
+              field->value_as_FlatFloatValue()->value());
+          break;
+        case FlatValue::FlatValue_FlatStringValue:
+          ptr = std::make_shared<Feature>(
+              field->value_as_FlatStringValue()->value()->str());
+          break;
+        case FlatValue::FlatValue_FlatInt64Array: {
+          const auto *array = field->value_as_FlatInt64Array()->value();
+          std::vector<int64_t> value;
+          value.reserve(array->size());
+          value.assign(array->begin(), array->end());
+          ptr = std::make_shared<Feature>(std::move(value));
+          break;
+        }
+        case FlatValue::FlatValue_FlatFloatArray: {
+          const auto *array = field->value_as_FlatFloatArray()->value();
+          std::vector<float> value;
+          value.reserve(array->size());
+          value.assign(array->begin(), array->end());
+          ptr = std::make_shared<Feature>(std::move(value));
+          break;
+        }
+        case FlatValue::FlatValue_FlatStringArray: {
+          const auto *array = field->value_as_FlatStringArray()->value();
+          std::vector<std::string> value;
+          value.reserve(array->size());
+          for (const auto &s : *array) {
+            value.emplace_back(s->str());
+          }
+          ptr = std::make_shared<Feature>(std::move(value));
+        }
+        default:
+          break;
+      }
+
+      if (ptr) {
+        values[key->str()] = ptr;
       }
     }
   }
 
   /**
-   * @brief Constructs features from a JSON string.
+   * @brief Constructs features from a FlatBuffers string.
    *
-   * @param value The JSON string representing features.
+   * @param value The FlatBuffers string representing features.
    */
   explicit Features(const std::string &value) : Features(value.c_str()) {}
 
@@ -252,6 +258,6 @@ struct Features {
   }
 };
 
-} // namespace minia
+}  // namespace minia
 
-#endif // MINIA_FEATURE_H_
+#endif  // MINIA_FEATURE_H_

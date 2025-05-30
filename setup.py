@@ -17,8 +17,8 @@
 #
 
 import os
-import pathlib
-import re
+import platform
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -26,187 +26,271 @@ from pathlib import Path
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
-here = pathlib.Path(__file__).parent.resolve()
-
 
 def get_requires(filename):
+    """Read requirements from file"""
     requirements = []
-    with open(filename, "rt") as req_file:
-        for line in req_file.read().splitlines():
-            if not line.strip().startswith("#"):
-                requirements.append(line)
+    try:
+        with open(filename, "rt") as req_file:
+            for line in req_file.read().splitlines():
+                if not line.strip().startswith("#"):
+                    requirements.append(line)
+    except FileNotFoundError:
+        pass
     return requirements
 
 
-def generate_long_description_file():
-    this_directory = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(this_directory, "README.md")) as f:
-        long_description = f.read()
-    return long_description
-
-
-# Convert distutils Windows platform specifiers to CMake -A arguments
-PLAT_TO_CMAKE = {
-    "win32": "Win32",
-    "win-amd64": "x64",
-    "win-arm32": "ARM",
-    "win-arm64": "ARM64",
-}
-
-
-# A CMakeExtension needs a sourcedir instead of a file list.
-# The name must be the _single_ output extension from the CMake build.
-# If you need multiple extensions, see scikit-build.
 class CMakeExtension(Extension):
+    """CMake extension class"""
     def __init__(self, name: str, sourcedir: str = "") -> None:
         super().__init__(name, sources=[])
         self.sourcedir = os.fspath(Path(sourcedir).resolve())
 
 
-def site_dir():
-    import site
-
-    python_lib_dir = (
-        site.getsitepackages()[0] if hasattr(site, "getsitepackages") else sys.prefix
-    )
-    return python_lib_dir
-
-
 class CMakeBuild(build_ext):
+    """Custom build_ext command for CMake extensions"""
+    
+    def __init__(self, dist):
+        super().__init__(dist)
+        self.system = platform.system()
+        self.lib_ext = self._get_lib_extension()
+        
+    def _get_lib_extension(self):
+        """Get dynamic library extension for current platform"""
+        if self.system == "Darwin":
+            return ".dylib"
+        elif self.system == "Windows":
+            return ".dll"
+        else:
+            return ".so"
+    
+    def _fix_macos_install_name(self, lib_file):
+        """Fix macOS dynamic library install_name"""
+        try:
+            # Change install_name to relative path
+            subprocess.run([
+                "install_name_tool", 
+                "-id", 
+                f"@loader_path/{lib_file.name}",
+                str(lib_file)
+            ], check=True, capture_output=True)
+        except subprocess.CalledProcessError:
+            pass  # Ignore errors, might be static lib or other reasons
+    
+    def _copy_extension_to_target(self, build_dir, target_dir):
+        """Copy the built extension to target directory"""
+        # Look for the Python extension in build directory
+        extension_patterns = [
+            "pyminia*.so",
+            "pyminia*.pyd", 
+            "pyminia*.dylib"
+        ]
+        
+        for pattern in extension_patterns:
+            for ext_file in build_dir.rglob(pattern):
+                if ext_file.is_file():
+                    target_file = target_dir / ext_file.name
+                    try:
+                        shutil.copy2(ext_file, target_file)
+                        print(f"Copied extension: {ext_file.name} -> {target_file}")
+                        return True
+                    except Exception as e:
+                        print(f"Warning: Failed to copy extension {ext_file}: {e}")
+        
+        return False
+    
     def build_extension(self, ext: CMakeExtension) -> None:
-        # Must be in this form due to bug in .resolve() only fixed in Python 3.10+
+        """Build the CMake extension"""
+        # Get extension output path
         ext_fullpath = Path.cwd() / self.get_ext_fullpath(ext.name)
         extdir = ext_fullpath.parent.resolve()
+        extdir.mkdir(parents=True, exist_ok=True)
 
-        # Using this requires trailing slash for auto-detection & inclusion of
-        # auxiliary "native" libs
-
-        debug = int(os.environ.get("DEBUG", 1)) if self.debug is None else self.debug
+        # Build configuration
+        debug = int(os.environ.get("DEBUG", 0)) if self.debug is None else self.debug
         cfg = "Debug" if debug else "Release"
-
-        # CMake lets you override the generator - we need to check this.
-        # Can be set with Conda-Build, for example.
-        cmake_generator = os.environ.get("CMAKE_GENERATOR", "")
-
-        # Set Python_EXECUTABLE instead if you use PYBIND11_FINDPYTHON
-        # from Python.
-        site_packages_dir = site_dir()
-        pybind11_dir = f"{site_packages_dir}/pybind11/share/cmake/pybind11"
-        python_dir = os.path.abspath(sys.executable + "/../../")
+        
+        # Create build directory
+        build_temp = Path(self.build_temp).resolve() / ext.name
+        build_temp.mkdir(parents=True, exist_ok=True)
+        
+        print(f"Extension output directory: {extdir}")
+        print(f"Build temp directory: {build_temp}")
+        print(f"Source directory: {ext.sourcedir}")
+        
+        # CMake arguments
         cmake_args = [
-            f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
+            f"-DCMAKE_BUILD_TYPE={cfg}",
+            "-DBUILD_PYTHON_BINDINGS=ON",
+            "-DBUILD_SHARED_LIBS=ON",
+            "-DBUILD_STATIC_LIBS=ON",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
-            f"-Dpybind11_DIR={pybind11_dir}",
-            f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
+            # Set output directories relative to build directory
+            f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={build_temp}",
+            f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY={build_temp}",
+            f"-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY={build_temp}",
         ]
+        
+        # Force generator based on platform
+        if self.system == "Windows":
+            # Use Visual Studio on Windows
+            plat_to_cmake = {
+                "win32": "Win32",
+                "win-amd64": "x64", 
+                "win-arm32": "ARM",
+                "win-arm64": "ARM64",
+            }
+            cmake_args += ["-A", plat_to_cmake.get(self.plat_name, "x64")]
+            # For multi-config generators, set per-config output directories
+            cmake_args += [
+                f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{cfg.upper()}={build_temp}",
+                f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{cfg.upper()}={build_temp}",
+                f"-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_{cfg.upper()}={build_temp}",
+            ]
+        else:
+            # Force Unix Makefiles on Unix-like systems
+            cmake_args += ["-G", "Unix Makefiles"]
+        
         build_args = []
-        # Adding CMake arguments set as environment variable
-        # (needed e.g. to build for ARM OSx on conda-forge)
+        
+        # Add config for multi-config generators (Windows)
+        if self.system == "Windows":
+            build_args += ["--config", cfg]
+        
+        # Add environment CMake arguments if any
         if "CMAKE_ARGS" in os.environ:
             cmake_args += [item for item in os.environ["CMAKE_ARGS"].split(" ") if item]
-
-        if self.compiler.compiler_type != "msvc":
-            # Using Ninja-build since it a) is available as a wheel and b)
-            # multithreads automatically. MSVC would require all variables be
-            # exported for Ninja to pick it up, which is a little tricky to do.
-            # Users can override the generator with CMAKE_GENERATOR in CMake
-            # 3.15+.
-            if not cmake_generator or cmake_generator == "Ninja":
-                try:
-                    import ninja
-
-                    ninja_executable_path = Path(ninja.BIN_DIR) / "ninja"
-                    cmake_args += [
-                        "-GNinja",
-                        f"-DCMAKE_MAKE_PROGRAM:FILEPATH={ninja_executable_path}",
-                    ]
-                except ImportError:
-                    pass
-
-        else:
-            # Single config generators are handled "normally"
-            single_config = any(x in cmake_generator for x in {"NMake", "Ninja"})
-
-            # CMake allows an arch-in-generator style for backward compatibility
-            contains_arch = any(x in cmake_generator for x in {"ARM", "Win64"})
-
-            # Specify the arch if using MSVC generator, but only if it doesn't
-            # contain a backward-compatibility arch spec already in the
-            # generator name.
-            if not single_config and not contains_arch:
-                cmake_args += ["-A", PLAT_TO_CMAKE[self.plat_name]]
-
-            # Multi-config generators have a different way to specify configs
-            if not single_config:
-                cmake_args += [
-                    f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{cfg.upper()}={extdir}"
-                ]
-                build_args += ["--config", cfg]
-
-        if sys.platform.startswith("darwin"):
-            # Cross-compile support for macOS - respect ARCHFLAGS if set
-            cmake_args += [f"-DPython3_ROOT_DIR={python_dir}"]
+        
+        # macOS cross-compile support
+        if self.system == "Darwin":
+            import re
             archs = re.findall(r"-arch (\S+)", os.environ.get("ARCHFLAGS", ""))
             if archs:
                 cmake_args += ["-DCMAKE_OSX_ARCHITECTURES={}".format(";".join(archs))]
-
-        # Set CMAKE_BUILD_PARALLEL_LEVEL to control the parallel build level
-        # across all generators.
+        
+        # Parallel build
         if "CMAKE_BUILD_PARALLEL_LEVEL" not in os.environ:
-            # self.parallel is a Python 3 only way to set parallel jobs by hand
-            # using -j in the build_ext call, not supported by pip or PyPA-build.
             if hasattr(self, "parallel") and self.parallel:
-                # CMake 3.12+ only.
                 build_args += [f"-j{self.parallel}"]
+            else:
+                import multiprocessing
+                build_args += [f"-j{multiprocessing.cpu_count()}"]
 
-        build_temp = Path(self.build_temp) / ext.name
-        if not build_temp.exists():
-            build_temp.mkdir(parents=True)
+        # Setup environment - remove CMAKE_GENERATOR to avoid conflicts
+        env = os.environ.copy()
+        env.pop("CMAKE_GENERATOR", None)  # Remove any existing generator setting
 
-        subprocess.run(
-            ["cmake", ext.sourcedir, *cmake_args], cwd=build_temp, check=True
-        )
-        subprocess.run(
-            ["cmake", "--build", ".", *build_args], cwd=build_temp, check=True
-        )
+        # Execute CMake configure
+        print(f"CMake configure: cmake {ext.sourcedir} {' '.join(cmake_args)}")
+        print(f"Working directory: {build_temp}")
+        
+        try:
+            subprocess.run(
+                ["cmake", ext.sourcedir] + cmake_args, 
+                cwd=build_temp, 
+                env=env,
+                check=True
+            )
+            print("CMake configure succeeded")
+        except subprocess.CalledProcessError as e:
+            print(f"CMake configure failed with return code {e.returncode}")
+            raise
+        
+        # Execute CMake build
+        print(f"CMake build: cmake --build . {' '.join(build_args)}")
+        try:
+            subprocess.run(
+                ["cmake", "--build", "."] + build_args, 
+                cwd=build_temp, 
+                env=env,
+                check=True
+            )
+            print("CMake build succeeded")
+        except subprocess.CalledProcessError as e:
+            print(f"CMake build failed with return code {e.returncode}")
+            raise
+        
+        # Copy the built extension to the correct location
+        print("Copying built extension...")
+        if not self._copy_extension_to_target(build_temp, extdir):
+            print("Warning: Could not find built extension, checking common locations...")
+            # Check if extension was built in current directory (fallback)
+            for pattern in ["pyminia*.so", "pyminia*.pyd", "pyminia*.dylib"]:
+                for ext_file in Path(".").glob(pattern):
+                    print(ext_file)
+                    if ext_file.is_file():
+                        target_file = extdir / ext_file.name
+                        shutil.copy2(ext_file, target_file)
+                        print(f"Copied extension from current dir: {ext_file} -> {target_file}")
+                        # Clean up the file from current directory
+                        ext_file.unlink()
+                        break
+
+# Read long description
+def get_long_description():
+    """Read README.md for long description"""
+    try:
+        with open("README.md", "r", encoding="utf-8") as fd:
+            return fd.read()
+    except FileNotFoundError:
+        return "A C++ tool for feature transformation and hashing"
 
 
-with open("README.md", "r", encoding="utf-8") as fd:
-    long_description = fd.read()
-
+# Setup configuration
 setup(
-    name="minia",
+    name="pyminia",
     version="1.0.0",
     description="Python wrapper for minia, a C++ tool for feature transformation and hashing.",
-    license="License :: AGLP3",
+    long_description=get_long_description(),
+    long_description_content_type="text/markdown",
+    license="AGPL-3.0",
     author="uopensail",
-    author_email="",
+    author_email="timepi123@gmail.com",
     url="https://github.com/uopensail/minia",
+    
+    # Package configuration
     packages=find_packages(),
     py_modules=["minia"],
     ext_modules=[CMakeExtension("minia")],
     cmdclass={"build_ext": CMakeBuild},
+    
+    # Dependencies
+    install_requires=get_requires("requirements.txt"),
+    setup_requires=[
+        "pybind11>=2.11.1",
+    ],
+    
+    # Metadata
     keywords=[
         "feature transformation",
         "hashing",
+        "machine learning",
+        "data processing",
     ],
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    install_requires=get_requires(os.path.join(here, "requirements.txt")),
-    setup_requires=[
-        "pybind11>=2.11.1",
-        "ninja==1.11.1",
-    ],
+    
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: GNU Affero General Public License v3",
+        "Operating System :: OS Independent",
+        "Programming Language :: C++",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-        "Topic :: Software Development :: Libraries",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
     ],
-    python_requires=">=3.6",
+    
+    python_requires=">=3.7",
+    
+    # Include package data
+    include_package_data=True,
+    zip_safe=False,
 )

@@ -8,7 +8,7 @@ Minia is an open-source C++ feature processing library designed to streamline th
   - [Features](#features)
     - [Custom Expression Design with ANTLR](#custom-expression-design-with-antlr)
     - [Configuration-Based Processing](#configuration-based-processing)
-    - [JSON-Based Feature Input](#json-based-feature-input)
+    - [FlatBuffers-Based Feature Input](#flatbuffers-based-feature-input)
   - [Installation](#installation)
   - [Usage](#usage)
   - [Configuration](#configuration)
@@ -43,8 +43,8 @@ Example Configuration:
 expressions = ['x = 5 + 5 + h', 'y = sqrt(x)', 'z = y * y']
 ```
 
-### JSON-Based Feature Input
-Features are inputted in JSON format, and Minia supports a variety of data types to handle diverse data inputs. This flexibility ensures that Minia can be integrated into various data workflows.
+### FlatBuffers-Based Feature Input
+Features are inputted in FlatBuffers format, and Minia supports a variety of data types to handle diverse data inputs. This flexibility ensures that Minia can be integrated into various data workflows.
 
 ## Installation
 Minia can be easily installed as a Python package using the provided setup.py. This allows for seamless integration into existing Python projects.
@@ -56,8 +56,7 @@ python setup.py install
 Minia's Python interface makes it easy to apply feature transformations. Below is a basic usage example:
 
 ```python
-import json
-import minia
+import pyminia
 
 # Example configuration
 """
@@ -65,10 +64,9 @@ import minia
 expressions = ['x = 5 + 5 + h', 'y = sqrt(cast(x))', 'z = y*y']
 """
 
-m = minia.Minia("config.toml")
-features = {"h": {"type": 3, "value": [10, 20, 30]}}
-v = json.dumps(features)
-print(m(v))
+m = pyminia.Minia("config.toml")
+features = b'flatbuffer-data'
+print(m(features))
 
 # Output: {'x': [20, 30, 40], 'y': [4.4721360206604, 5.4772257804870605, 6.324555397033691], 'z': [20.0, 30.000001907348633, 40.0]}
 ```
@@ -159,34 +157,58 @@ Minia supports a range of data types to accommodate various data needs. The foll
 
 
 
-Example JSON input for features:
+FlatBuffers input for features:
 
-```json
-{
-    "f1": {
-        "type": 0,
-        "value": 1234567890
-    },
-    "f2": {
-        "type": 1,
-        "value": 3.14
-    },
-    "f3": {
-        "type": 2,
-        "value": "example string"
-    },
-    "f4": {
-        "type": 3,
-        "value": [123, 456, 789]
-    },
-    "f5": {
-        "type": 4,
-        "value": [1.1, 2.2, 3.3]
-    },
-    "f6": {
-        "type": 5,
-        "value": ["string1", "string2", "string3"]
-    }
+Since FlatBuffers does not provide built-in support for map or dictionary-like data structures, we implemented a design strategy that flattens key-value pairs into linear structures, effectively working around this architectural constraint while maintaining serialization efficiency.
+
+```flatbuffers
+// features.fbs
+// flatc --cpp features.fbs
+namespace minia;
+
+table FlatFloatArray {
+    value: [float];
+}
+
+table FlatFloatValue {
+    value: float;
+}
+
+table FlatInt64Array {
+    value: [int64];
+}
+
+table FlatInt64Value {
+    value: int64;
+}
+
+table FlatStringArray {
+    value: [string];
+}
+
+table FlatStringValue {
+    value: string;
+}
+
+table FlatNil {}
+
+union FlatValue {
+  FlatInt64Value,
+  FlatFloatValue,
+  FlatStringValue,
+  FlatInt64Array,
+  FlatFloatArray,
+  FlatStringArray,
+  FlatNil
+}
+
+table FlatValueWrapper {
+  value: FlatValue;
+}
+
+table FlatFeatures {
+  keys: [string];
+  values: [FlatValueWrapper];
 }
 
 ```

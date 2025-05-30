@@ -1,15 +1,21 @@
-
 #include "cminia.h"
+
+#include "common.h"
 #include "go.hpp"
 #include "minia.h"
+
+void minia_init_log(const char *log_dir, int32_t log_level) {
+  enable_glog(log_dir, log_level);
+}
 
 void *minia_create(const char *config_path) {
   try {
     return new minia::Minia(config_path);
   } catch (const std::exception &e) {
-    std::cerr << "minia_create exception:" << e.what() << std::endl;
+    LOG(ERROR) << "Minia create exception:" << e.what() << "\n";
   } catch (...) {
-    std::cerr << "minia_create Unknown exception caught!" << std::endl;
+    LOG(ERROR) << "Minia create unknown exception caught!"
+               << "\n";
   }
   return nullptr; // Ensure return on failure
 }
@@ -37,10 +43,11 @@ void *minia_call(void *m, const char *data) {
     mn->call(*feas);
     return feas;
   } catch (const std::exception &e) {
-    std::cerr << "minia_call exception:" << e.what() << std::endl;
+    LOG(ERROR) << "Minia call exception:" << e.what() << "\n";
   } catch (...) {
-    std::cerr << "minia_call unknown exception caught!" << std::endl;
+    LOG(ERROR) << "Minia call unknown exception caught!\n";
   }
+  return nullptr;
 }
 
 void *minia_get_feature(void *features, const char *key, int32_t *type) {
