@@ -25,70 +25,38 @@ class FlatFeatures(object):
         self._tab = flatbuffers.table.Table(buf, pos)
 
     # FlatFeatures
-    def Keys(self, j):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
-        if o != 0:
-            a = self._tab.Vector(o)
-            return self._tab.String(a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
-        return ""
-
-    # FlatFeatures
-    def KeysLength(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
-        if o != 0:
-            return self._tab.VectorLen(o)
-        return 0
-
-    # FlatFeatures
-    def KeysIsNone(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
-        return o == 0
-
-    # FlatFeatures
     def Values(self, j):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
             x = self._tab.Indirect(x)
-            from minia.FlatValueWrapper import FlatValueWrapper
-            obj = FlatValueWrapper()
+            from minia.FlatFeature import FlatFeature
+            obj = FlatFeature()
             obj.Init(self._tab.Bytes, x)
             return obj
         return None
 
     # FlatFeatures
     def ValuesLength(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # FlatFeatures
     def ValuesIsNone(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         return o == 0
 
 def FlatFeaturesStart(builder):
-    builder.StartObject(2)
+    builder.StartObject(1)
 
 def Start(builder):
     FlatFeaturesStart(builder)
 
-def FlatFeaturesAddKeys(builder, keys):
-    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(keys), 0)
-
-def AddKeys(builder, keys):
-    FlatFeaturesAddKeys(builder, keys)
-
-def FlatFeaturesStartKeysVector(builder, numElems):
-    return builder.StartVector(4, numElems, 4)
-
-def StartKeysVector(builder, numElems):
-    return FlatFeaturesStartKeysVector(builder, numElems)
-
 def FlatFeaturesAddValues(builder, values):
-    builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(values), 0)
+    builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(values), 0)
 
 def AddValues(builder, values):
     FlatFeaturesAddValues(builder, values)

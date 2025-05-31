@@ -45,10 +45,9 @@ using Value = std::variant<int64_t, float, std::string, std::vector<int64_t>,
  * @brief Macro to register a C++ type with its corresponding DataType enum
  * value.
  */
-#define REGISTER_TYPE_ID(CppType, EnumValue)     \
-  template <>                                    \
-  struct TypeID<CppType> {                       \
-    static constexpr DataType value = EnumValue; \
+#define REGISTER_TYPE_ID(CppType, EnumValue)                                   \
+  template <> struct TypeID<CppType> {                                         \
+    static constexpr DataType value = EnumValue;                               \
   }
 
 /**
@@ -56,8 +55,7 @@ using Value = std::variant<int64_t, float, std::string, std::vector<int64_t>,
  *
  * Provides a default value of DataType::kError for unsupported types.
  */
-template <typename T>
-struct TypeID {
+template <typename T> struct TypeID {
   static constexpr DataType value = DataType::kError;
 };
 
@@ -75,8 +73,8 @@ REGISTER_TYPE_ID(std::vector<std::string>, DataType::kStrings);
  * @brief Represents a feature with a type and a value.
  */
 struct Feature {
-  Value value;    ///< The value of the feature
-  DataType type;  ///< The type of the feature
+  Value value;   ///< The value of the feature
+  DataType type; ///< The type of the feature
 
   /**
    * @brief Constructs a feature from a given value.
@@ -104,8 +102,7 @@ struct Feature {
    * @return The value cast to the specified type.
    * @throws std::runtime_error if the type is unsupported or mismatched.
    */
-  template <typename T>
-  const T &get() const {
+  template <typename T> const T &get() const {
     validate_type<T>();
     return std::get<T>(value);
   }
@@ -134,7 +131,7 @@ struct Feature {
         value, f.value);
   }
 
- private:
+private:
   /**
    * @brief Validates the type of the feature.
    *
@@ -143,8 +140,7 @@ struct Feature {
    * @tparam T The expected type.
    * @throws std::runtime_error if the type is unsupported or mismatched.
    */
-  template <typename T>
-  void validate_type() const {
+  template <typename T> void validate_type() const {
     if constexpr (TypeID<T>::value == DataType::kError) {
       throw std::runtime_error("Unsupported type");
     }
@@ -162,9 +158,19 @@ using FeaturePtr = std::shared_ptr<Feature>;
  */
 struct Features {
   std::unordered_map<std::string, FeaturePtr>
-      values;  ///< Map of feature names to feature pointers
+      values; ///< Map of feature names to feature pointers
 
   Features() = default;
+
+  Features(const Features &other) : values(other.values) {}
+
+  Features &operator=(const Features &other) {
+    if (this == &other) {
+      return *this;
+    }
+    values = other.values;
+    return *this;
+  }
 
   /**
    * @brief Constructs features from a FlatBuffers.
@@ -176,51 +182,51 @@ struct Features {
 
     const size_t size = data->values()->size();
     for (size_t i = 0; i < size; i++) {
-      const FlatValueWrapper *field = data->values()->Get(i);
-      const flatbuffers::String *key = data->keys()->Get(i);
+      const FlatFeature *field = data->values()->Get(i);
       const FlatValue type = field->value_type();
+      const flatbuffers::String *key = field->name();
 
       FeaturePtr ptr = nullptr;
       switch (type) {
-        case FlatValue::FlatValue_FlatInt64Value:
-          ptr = std::make_shared<Feature>(
-              field->value_as_FlatInt64Value()->value());
-          break;
-        case FlatValue::FlatValue_FlatFloatValue:
-          ptr = std::make_shared<Feature>(
-              field->value_as_FlatFloatValue()->value());
-          break;
-        case FlatValue::FlatValue_FlatStringValue:
-          ptr = std::make_shared<Feature>(
-              field->value_as_FlatStringValue()->value()->str());
-          break;
-        case FlatValue::FlatValue_FlatInt64Array: {
-          const auto *array = field->value_as_FlatInt64Array()->value();
-          std::vector<int64_t> value;
-          value.reserve(array->size());
-          value.assign(array->begin(), array->end());
-          ptr = std::make_shared<Feature>(std::move(value));
-          break;
+      case FlatValue::FlatValue_FlatInt64Value:
+        ptr = std::make_shared<Feature>(
+            field->value_as_FlatInt64Value()->value());
+        break;
+      case FlatValue::FlatValue_FlatFloatValue:
+        ptr = std::make_shared<Feature>(
+            field->value_as_FlatFloatValue()->value());
+        break;
+      case FlatValue::FlatValue_FlatStringValue:
+        ptr = std::make_shared<Feature>(
+            field->value_as_FlatStringValue()->value()->str());
+        break;
+      case FlatValue::FlatValue_FlatInt64Array: {
+        const auto *array = field->value_as_FlatInt64Array()->value();
+        std::vector<int64_t> value;
+        value.reserve(array->size());
+        value.assign(array->begin(), array->end());
+        ptr = std::make_shared<Feature>(std::move(value));
+        break;
+      }
+      case FlatValue::FlatValue_FlatFloatArray: {
+        const auto *array = field->value_as_FlatFloatArray()->value();
+        std::vector<float> value;
+        value.reserve(array->size());
+        value.assign(array->begin(), array->end());
+        ptr = std::make_shared<Feature>(std::move(value));
+        break;
+      }
+      case FlatValue::FlatValue_FlatStringArray: {
+        const auto *array = field->value_as_FlatStringArray()->value();
+        std::vector<std::string> value;
+        value.reserve(array->size());
+        for (const auto &s : *array) {
+          value.emplace_back(s->str());
         }
-        case FlatValue::FlatValue_FlatFloatArray: {
-          const auto *array = field->value_as_FlatFloatArray()->value();
-          std::vector<float> value;
-          value.reserve(array->size());
-          value.assign(array->begin(), array->end());
-          ptr = std::make_shared<Feature>(std::move(value));
-          break;
-        }
-        case FlatValue::FlatValue_FlatStringArray: {
-          const auto *array = field->value_as_FlatStringArray()->value();
-          std::vector<std::string> value;
-          value.reserve(array->size());
-          for (const auto &s : *array) {
-            value.emplace_back(s->str());
-          }
-          ptr = std::make_shared<Feature>(std::move(value));
-        }
-        default:
-          break;
+        ptr = std::make_shared<Feature>(std::move(value));
+      }
+      default:
+        break;
       }
 
       if (ptr) {
@@ -258,6 +264,6 @@ struct Features {
   }
 };
 
-}  // namespace minia
+} // namespace minia
 
-#endif  // MINIA_FEATURE_H_
+#endif // MINIA_FEATURE_H_

@@ -25,7 +25,7 @@ from minia import (
     FlatInt64Array,
     FlatFloatArray,
     FlatStringArray,
-    FlatValueWrapper,
+    FlatFeature,
     FlatValue,
 )
 import random
@@ -140,27 +140,31 @@ def create_string_array(builder, values):
     return FlatStringArray.End(builder)
 
 
-def create_value_wrapper(builder, value_type, value_offset):
+def create_value_feature(builder, column, value_type, value_offset):
     """
-    @brief Create a FlatValueWrapper object
+    @brief Create a FlatFeature object
     @param builder The FlatBuffers builder instance
+    @param column The column name of this feature
     @param value_type The type enumeration of the wrapped value
     @param value_offset The offset of the value object to wrap
-    @return Offset of the created FlatValueWrapper object
+    @return Offset of the created FlatFeature object
     @details Creates a wrapper that encapsulates a value with its type information
     """
-    FlatValueWrapper.Start(builder)
-    FlatValueWrapper.AddValue(builder, value_offset)
-    FlatValueWrapper.AddValueType(builder, value_type)
-    return FlatValueWrapper.End(builder)
+    str_offset = builder.CreateString(column)
+    FlatFeature.Start(builder)
+    FlatFeature.AddName(builder, str_offset)
+    FlatFeature.AddValue(builder, value_offset)
+    FlatFeature.AddValueType(builder, value_type)
+    return FlatFeature.End(builder)
 
 
-def create_value_wrapper_data(builder, value_type):
+def create_feature_data(builder, column, value_type):
     """
-    @brief Create a value wrapper with randomly generated data based on type
+    @brief Create a feature with randomly generated data based on type
     @param builder The FlatBuffers builder instance
+    @param column The column name of this feature
     @param value_type Integer representing the type of value to create (1-6)
-    @return Offset of the created FlatValueWrapper object
+    @return Offset of the created FlatFeature object
     @details Creates different types of values based on value_type:
              - 1: Int64Value with random integer
              - 2: FloatValue with random float
@@ -204,8 +208,8 @@ def create_value_wrapper_data(builder, value_type):
         obj = create_string_array(builder, values)
         field_type_enum = FlatValue.FlatValue.FlatStringArray
 
-    # Create FlatValueWrapper
-    return create_value_wrapper(builder, field_type_enum, obj)
+    # Create FlatFeature
+    return create_value_feature(builder, column, field_type_enum, obj)
 
 
 def create_features(num_fields=6):
@@ -223,21 +227,11 @@ def create_features(num_fields=6):
 
     # Create field wrapper arrays
     field_wrapper_offsets = []
-    string_offsets = []
     for i in range(num_fields):
-        string_offset = builder.CreateString(f"col_{i}")
-        string_offsets.append(string_offset)
         dtype = i % 6
         if dtype == 0:
             dtype = 6
-        field_wrapper_offsets.append(create_value_wrapper_data(builder, dtype))
-
-    # Create keys vector
-    FlatFeatures.StartKeysVector(builder, len(string_offsets))
-    # Note: Need to add in reverse order
-    for offset in reversed(string_offsets):
-        builder.PrependUOffsetTRelative(offset)
-    strings_vector = builder.EndVector()
+        field_wrapper_offsets.append(create_feature_data(builder, f"col_{i}", dtype))
 
     # Add field wrappers to values vector
     FlatFeatures.StartValuesVector(builder, len(field_wrapper_offsets))
@@ -247,7 +241,6 @@ def create_features(num_fields=6):
 
     # Create the final FlatFeatures object
     FlatFeatures.Start(builder)
-    FlatFeatures.AddKeys(builder, strings_vector)
     FlatFeatures.AddValues(builder, fields_vector)
     features = FlatFeatures.End(builder)
 
