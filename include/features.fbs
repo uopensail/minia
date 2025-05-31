@@ -38,11 +38,21 @@ union FlatValue {
   FlatNil
 }
 
-table FlatValueWrapper {
+table FlatFeature {
+  name: string (key);
   value: FlatValue;
 }
 
 table FlatFeatures {
-  keys: [string];
-  values: [FlatValueWrapper];
+  values: [FlatFeature];
+}
+
+table FlatMaterial {
+  id: string (key);
+  features: FlatFeatures;
+}
+
+table FlatMaterialCollection {
+  version: string;
+  meterials: [FlatMaterial];
 }
