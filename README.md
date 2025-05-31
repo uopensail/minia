@@ -156,14 +156,13 @@ Minia supports a range of data types to accommodate various data needs. The foll
 | 127      | Represents an error state or undefined data type |
 
 
-
 FlatBuffers input for features:
 
 Since FlatBuffers does not provide built-in support for map or dictionary-like data structures, we implemented a design strategy that flattens key-value pairs into linear structures, effectively working around this architectural constraint while maintaining serialization efficiency.
 
 ```flatbuffers
 // features.fbs
-// flatc --cpp features.fbs
+// /opt/homebrew/Cellar/flatbuffers/25.2.10/bin/flatc --cpp features.fbs
 namespace minia;
 
 table FlatFloatArray {
@@ -202,14 +201,25 @@ union FlatValue {
   FlatNil
 }
 
-table FlatValueWrapper {
+table FlatFeature {
+  name: string (key);
   value: FlatValue;
 }
 
 table FlatFeatures {
-  keys: [string];
-  values: [FlatValueWrapper];
+  values: [FlatFeature];
 }
+
+table FlatMaterial {
+  id: string (key);
+  features: FlatFeatures;
+}
+
+table FlatMaterialCollection {
+  version: string;
+  meterials: [FlatMaterial];
+}
+
 
 ```
 
