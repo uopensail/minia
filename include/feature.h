@@ -29,11 +29,8 @@
 
 #include "common.h"
 #include "features_generated.h"
-#include "json.hpp"
 
 namespace minia {
-
-using json = nlohmann::json;
 
 /**
  * @brief Variant type representing different possible data types.

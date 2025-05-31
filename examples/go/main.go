@@ -11,7 +11,7 @@ func main() {
 	client := wrapper.NewMiniaClient("../config/config.toml")
 	defer client.Release() // Ensure resources are released when done
 
-	// Execute the Minia call with a JSON input string
+	// Execute the Minia call with a FlatBuffers input string
 	data, _ := os.ReadFile("../data/data.bin")
 	featureSet := client.Call(data)
 	defer featureSet.Release() // Ensure feature resources are released

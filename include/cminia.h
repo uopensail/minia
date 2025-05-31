@@ -52,7 +52,7 @@ void *minia_features(void *m);
 /**
  * @brief Executes Minia processing
  * @param m Minia instance pointer
- * @param data Features data string, JSON format
+ * @param data Features data string, FlatBuffers format
  * @return Pointer to processed features or nullptr on failure
  */
 void *minia_call(void *m, const char *data);
@@ -80,8 +80,8 @@ void minia_del_feature(void *feature, int32_t type);
 void minia_del_features(void *features);
 
 #ifdef __cplusplus
-}  // extern "C"
+} // extern "C"
 
 #endif
 
-#endif  // C_MINIA_H_
+#endif // C_MINIA_H_
