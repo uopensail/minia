@@ -18,11 +18,12 @@
 
 import pyminia
 
+
 def test():
-    data = open("../data/data.bin","rb").read()
-    m = pyminia.Minia("../config/config.toml")
-    print(m(data))
+    m = pyminia.Minia(["a = 1", "b = a + c"])
+    print(m({"c": {"type": 0, "value": 5}}))
+
 
 test()
 
-# output: {'A': -8209, 'B': 9.003742218017578, 'C': 570082033589109458}
+# output: {'a': 1, 'b': 6}

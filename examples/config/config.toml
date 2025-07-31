@@ -1,7 +1,0 @@
-[transform]
-expressions = [
-    'A=col_1 + 5',
-    'B=sqrt(abs(col_2))',
-    'C=hash(concat(col_3, "test_minia"))',
-]
-features = ['A', 'B', 'C']

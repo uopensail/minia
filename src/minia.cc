@@ -3,56 +3,23 @@
 #include <iostream>
 
 #include "builtin.h"
-#include "toml.hpp"
 
 namespace minia {
 
-Minia::Minia(const std::string &config_file) {
-  toml::table table;
-  try {
-    table = toml::parse_file(config_file);
-  } catch (const toml::parse_error &err) {
-    LOG(ERROR) << "Error parsing file: " << *err.source().path << ": "
-               << err.description() << "(" << err.source().begin.line << ")\n";
-    throw std::runtime_error("Error parsing file" + *err.source().path +
-                             "': " + std::string(err.description()) + " (" +
-                             std::to_string(err.source().begin.line) + ")");
-  }
-
-  std::vector<std::string> exprs;
-  if (auto *arr = table.at_path("transform.expressions").as_array()) {
-    for (const auto &item : *arr) {
-      if (auto expr = item.value<std::string>()) {
-        exprs.emplace_back(*expr);
-      }
+Minia::Minia(const std::vector<std::string> &expressions) {
+  // Combine expressions into a single string with ';' as a delimiter
+  std::string total;
+  for (size_t i = 0; i < expressions.size(); ++i) {
+    if (i > 0) {
+      total += ";";
     }
-  } else {
-    LOG(ERROR) << "Missing or invalid 'transform.expressions array in "
-                  "configuration.\n";
-    throw std::runtime_error("Missing or invalid 'transform.expressions' "
-                             "array in configuration.");
+    total += expressions[i];
   }
 
-  parse(exprs);
+  parse(total);
 }
 
-Minia::Minia(const toml::table &table) {
-  std::vector<std::string> exprs;
-  if (auto *arr = table.at_path("transform.expressions").as_array()) {
-    for (const auto &item : *arr) {
-      if (auto expr = item.value<std::string>()) {
-        exprs.emplace_back(*expr);
-      }
-    }
-  } else {
-    LOG(ERROR) << "Missing or invalid 'transform.expressions array in "
-                  "configuration.\n";
-    throw std::runtime_error("Missing or invalid 'transform.expressions' "
-                             "array in configuration.");
-  }
-
-  parse(exprs);
-}
+Minia::Minia(const std::string &expressions) { parse(expressions); }
 
 void Minia::call(Features &features) {
   // copy literals
@@ -72,18 +39,9 @@ void Minia::call(Features &features) {
   }
 }
 
-void Minia::parse(const std::vector<std::string> &exprs) {
-  // Combine expressions into a single string with ';' as a delimiter
-  std::string total;
-  for (size_t i = 0; i < exprs.size(); ++i) {
-    if (i > 0) {
-      total += ";";
-    }
-    total += exprs[i];
-  }
-
+void Minia::parse(const std::string &exprs) {
   // Initialize ANTLR components for parsing
-  antlr4::ANTLRInputStream input(total);
+  antlr4::ANTLRInputStream input(exprs);
   miniaLexer lexer(&input);
   antlr4::CommonTokenStream tokens(&lexer);
   miniaParser parser(&tokens);

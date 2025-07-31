@@ -25,7 +25,7 @@
 #include <variant>
 #include <vector>
 
-#define ENABLE_GLOG
+// #define ENABLE_GLOG
 
 #ifdef ENABLE_GLOG
 #include <glog/logging.h>
@@ -64,18 +64,18 @@ enum LogLevel { INFO, WARNING, ERROR, FATAL };
  */
 static inline std::ostream &LOG(LogLevel level) {
   switch (level) {
-    case INFO:
-    case WARNING:
-      return std::cout;  // Info and warning output to std::cout
-    case ERROR:
-    case FATAL:
-      return std::cerr;  // Error and fatal error output to std::cerr
-    default:
-      return std::cout;  // Default output to std::cout
+  case INFO:
+  case WARNING:
+    return std::cout; // Info and warning output to std::cout
+  case ERROR:
+  case FATAL:
+    return std::cerr; // Error and fatal error output to std::cerr
+  default:
+    return std::cout; // Default output to std::cout
   }
 }
 
-#endif  // ENABLE_GLOG
+#endif // ENABLE_GLOG
 
 /**
  * @brief Initialize the minia logging system with specified directory and log
@@ -108,15 +108,15 @@ namespace minia {
  * handling.
  */
 enum DataType : int8_t {
-  kInt64 = 0,   ///< Represents a 64-bit integer
-  kFloat32,     ///< Represents a 32-bit floating-point number
-  kString,      ///< Represents a string
-  kInt64s,      ///< Represents a vector of 64-bit integers
-  kFloat32s,    ///< Represents a vector of 32-bit floating-point numbers
-  kStrings,     ///< Represents a vector of strings
-  kError = 127  ///< Represents an error state or undefined data type
+  kInt64 = 0,  ///< Represents a 64-bit integer
+  kFloat32,    ///< Represents a 32-bit floating-point number
+  kString,     ///< Represents a string
+  kInt64s,     ///< Represents a vector of 64-bit integers
+  kFloat32s,   ///< Represents a vector of 32-bit floating-point numbers
+  kStrings,    ///< Represents a vector of strings
+  kError = 127 ///< Represents an error state or undefined data type
 };
 
-}  // namespace minia
+} // namespace minia
 
-#endif  // MINIA_COMMON_H_
+#endif // MINIA_COMMON_H_

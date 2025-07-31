@@ -11,7 +11,7 @@ Minia is an open-source C++ feature processing library designed to streamline th
     - [FlatBuffers-Based Feature Input](#flatbuffers-based-feature-input)
   - [Installation](#installation)
   - [Usage](#usage)
-  - [Configuration](#configuration)
+  - [Expressions](#expressions)
     - [Supported Operations](#supported-operations)
   - [Data Types](#data-types)
   - [Contributing](#contributing)
@@ -37,10 +37,10 @@ Minia supports configuration-based processing using the TOML format, which simpl
 - Common Subexpression Elimination: Detects and eliminates repeated subexpressions within the transformations, optimizing resource usage by avoiding redundant calculations.
 
 
-Example Configuration:
-```toml
-[transform]
+Example Expressions:
+```python
 expressions = ['x = 5 + 5 + h', 'y = sqrt(x)', 'z = y * y']
+
 ```
 
 ### FlatBuffers-Based Feature Input
@@ -59,20 +59,14 @@ Minia's Python interface makes it easy to apply feature transformations. Below i
 import pyminia
 
 # Example configuration
-"""
-[transform]
-expressions = ['x = 5 + 5 + h', 'y = sqrt(cast(x))', 'z = y*y']
-"""
+m = pyminia.Minia(['x = 5 + 5 + h', 'y = sqrt(cast(x))', 'z = y*y'])
+print(m({"c": {"type": 0, "value": 5}}))
 
-m = pyminia.Minia("config.toml")
-features = b'flatbuffer-data'
-print(m(features))
-
-# Output: {'x': [20, 30, 40], 'y': [4.4721360206604, 5.4772257804870605, 6.324555397033691], 'z': [20.0, 30.000001907348633, 40.0]}
+# output: {'a': 1, 'b': 6}
 ```
 
-## Configuration
-The configuration file is written in TOML format and includes expressions that define how features should be transformed. This approach simplifies the process of updating and managing feature transformations.
+## Expressions
+The expressions are written in strings , which define how features should be transformed. This approach simplifies the process of updating and managing feature transformations.
 
 ### Supported Operations
 | Operation      | Description                                                    |

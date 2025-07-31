@@ -31,10 +31,10 @@ void minia_init_log(const char *log_dir, int32_t log_level);
 
 /**
  * @brief Creates a new Minia instance
- * @param config_path Path to configuration file
+ * @param expressions Expressions to be processed
  * @return Pointer to Minia instance or nullptr on failure
  */
-void *minia_create(const char *config_path);
+void *minia_create(const char *expressions);
 
 /**
  * @brief Releases a Minia instance

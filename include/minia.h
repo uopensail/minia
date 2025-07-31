@@ -22,35 +22,31 @@
 #include <string>
 #include <tuple>
 #include <unordered_map>
+#include <vector>
 
 #include "grammar/minia.h"
 #include "grammar/miniaLexer.h"
-#include "toml.hpp"
 
 namespace minia {
 class Minia {
-public:
+ public:
   /**
-   * @brief Constructs a Minia object by parsing a configuration file.
+   * @brief Constructs a Minia object by parsing `expressions`
    *
-   * This constructor initializes the Minia object by reading expressions and
-   * features from a TOML configuration file. It parses the file, extracts the
-   * necessary data, and handles any parsing errors.
+   * This constructor initializes the Minia object by using `expressions`.
    *
-   * @param config_file The path to the configuration file.
+   * @param expressions The expressions to be processed.
    */
-  explicit Minia(const std::string &config_file);
+  explicit Minia(const std::vector<std::string> &expressions);
 
   /**
-   * @brief Constructs a Minia object by parsing a configuration table.
+   * @brief Constructs a Minia object by parsing `expressions`
    *
-   * This constructor initializes the Minia object by reading expressions and
-   * features from a TOML configuration table. It parses the table, extracts the
-   * necessary data, and handles any parsing errors.
+   * This constructor initializes the Minia object by using `expressions`.
    *
-   * @param table The configuration table.
+   * @param expressions The expressions to be processed.
    */
-  explicit Minia(const toml::table &table);
+  explicit Minia(const std::string &expressions);
 
   ~Minia() = default;
 
@@ -76,7 +72,7 @@ public:
    */
   const std::vector<std::string> &features() const { return features_; }
 
-private:
+ private:
   // Type alias for a variable indexed by an integer and associated with a
   // string
   using IndexedVar = std::tuple<int32_t, std::string>;
@@ -90,11 +86,12 @@ private:
    * feature arguments.
    */
   struct Op {
-    std::string out;  ///< The output identifier of the operation
-    std::string func; ///< The function name associated with the operation
+    std::string out;   ///< The output identifier of the operation
+    std::string func;  ///< The function name associated with the operation
     std::vector<IndexedVar>
-        vars; ///< A vector of indexed variables used in the operation
-    std::vector<FeaturePtr> args; ///< A vector of feature pointers as arguments
+        vars;  ///< A vector of indexed variables used in the operation
+    std::vector<FeaturePtr>
+        args;  ///< A vector of feature pointers as arguments
 
     /**
      * @brief Constructs the function name based on the operation's function
@@ -160,9 +157,9 @@ private:
    *
    * @param exprs A vector of expressions to be parsed.
    */
-  void parse(const std::vector<std::string> &exprs);
+  void parse(const std::string &exprs);
 
-private:
+ private:
   std::vector<std::string>
       features_; /**< A vector storing the names of features. */
   std::vector<Op>
@@ -172,6 +169,6 @@ private:
   std::unordered_map<std::string, FeaturePtr> literals_; /**< Literal valeus */
 };
 
-} // namespace minia
+}  // namespace minia
 
-#endif // MINIA_H_
+#endif  // MINIA_H_

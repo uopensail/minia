@@ -28,7 +28,6 @@
 #include <vector>
 
 #include "common.h"
-#include "features_generated.h"
 
 namespace minia {
 
@@ -168,76 +167,6 @@ struct Features {
     values = other.values;
     return *this;
   }
-
-  /**
-   * @brief Constructs features from a FlatBuffers.
-   *
-   * @param value The FlatBuffers representing features.
-   */
-  explicit Features(const char *value) {
-    const FlatFeatures *data = flatbuffers::GetRoot<FlatFeatures>(value);
-
-    const size_t size = data->values()->size();
-    for (size_t i = 0; i < size; i++) {
-      const FlatFeature *field = data->values()->Get(i);
-      const FlatValue type = field->value_type();
-      const flatbuffers::String *key = field->name();
-
-      FeaturePtr ptr = nullptr;
-      switch (type) {
-      case FlatValue::FlatValue_FlatInt64Value:
-        ptr = std::make_shared<Feature>(
-            field->value_as_FlatInt64Value()->value());
-        break;
-      case FlatValue::FlatValue_FlatFloatValue:
-        ptr = std::make_shared<Feature>(
-            field->value_as_FlatFloatValue()->value());
-        break;
-      case FlatValue::FlatValue_FlatStringValue:
-        ptr = std::make_shared<Feature>(
-            field->value_as_FlatStringValue()->value()->str());
-        break;
-      case FlatValue::FlatValue_FlatInt64Array: {
-        const auto *array = field->value_as_FlatInt64Array()->value();
-        std::vector<int64_t> value;
-        value.reserve(array->size());
-        value.assign(array->begin(), array->end());
-        ptr = std::make_shared<Feature>(std::move(value));
-        break;
-      }
-      case FlatValue::FlatValue_FlatFloatArray: {
-        const auto *array = field->value_as_FlatFloatArray()->value();
-        std::vector<float> value;
-        value.reserve(array->size());
-        value.assign(array->begin(), array->end());
-        ptr = std::make_shared<Feature>(std::move(value));
-        break;
-      }
-      case FlatValue::FlatValue_FlatStringArray: {
-        const auto *array = field->value_as_FlatStringArray()->value();
-        std::vector<std::string> value;
-        value.reserve(array->size());
-        for (const auto &s : *array) {
-          value.emplace_back(s->str());
-        }
-        ptr = std::make_shared<Feature>(std::move(value));
-      }
-      default:
-        break;
-      }
-
-      if (ptr) {
-        values[key->str()] = ptr;
-      }
-    }
-  }
-
-  /**
-   * @brief Constructs features from a FlatBuffers string.
-   *
-   * @param value The FlatBuffers string representing features.
-   */
-  explicit Features(const std::string &value) : Features(value.c_str()) {}
 
   /**
    * @brief Retrieves a feature by name.

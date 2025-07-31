@@ -1,5 +1,0 @@
-[transform]
-expressions = [
-    'a = 1',
-    'b = !a | c & 0',
-]
