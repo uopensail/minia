@@ -220,8 +220,10 @@ const std::string
 Minia::Op::get_func(const std::vector<FeaturePtr> &my_args) const {
   std::string name = func + ":" + std::to_string(my_args.size()) + "=[";
   for (size_t j = 0; j < my_args.size(); ++j) {
-    name +=
-        (j > 0 ? "," : "") + std::to_string(static_cast<int>(my_args[j]->type));
+    if (my_args[j]) {
+      name += (j > 0 ? "," : "") +
+              std::to_string(static_cast<int>(my_args[j]->type));
+    }
   }
   name += "]";
   return name;
@@ -231,7 +233,14 @@ void Minia::Op::operator()(Features &features) const {
   std::vector<FeaturePtr> copy_args = args;
 
   for (const auto &var : vars) {
-    copy_args[std::get<0>(var)] = features.get(std::get<1>(var));
+    auto fea = features.get(std::get<1>(var));
+    if (fea) {
+      copy_args[std::get<0>(var)] = fea;
+    } else {
+      LOG(ERROR) << "Error: Feature not found for: " << std::get<1>(var)
+                 << "\n";
+      return;
+    }
   }
 
   const std::string name = get_func(copy_args);
@@ -241,7 +250,6 @@ void Minia::Op::operator()(Features &features) const {
     features.insert(out, it->second(copy_args));
   } else {
     LOG(ERROR) << "Error: Built-in function not found for: " << name << "\n";
-    throw std::runtime_error("Error: Built-in function not found for " + name);
   }
 }
 } // namespace minia

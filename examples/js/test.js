@@ -1,5 +1,5 @@
 // node test.js
-const Minia = require("minia.js");
+const Minia = require("./minia.js");
 
 async function testBasic() {
   console.log("🧪 Start test...");
@@ -10,12 +10,7 @@ async function testBasic() {
     console.log("✅ WebAssembly Module load success");
 
     // test JSMinia
-    const args = new Module.VectorString();
-    args.push_back("a = 1");
-    args.push_back("b = a + c");
-    args.push_back("d = hash(concat(\"test-\", e))");
-
-    const parser = new Module.JSMinia(args);
+    const parser = new Module.JSMinia(["a = 1", "b = a + c", "d = hash(concat(\"test-\", e))"]);
     console.log("✅ JSMinia instance create success");
 
     const input = {
@@ -35,7 +30,6 @@ async function testBasic() {
 
     // release memory
     parser.delete();
-    args.delete();
 
     console.log("✅ Pass All The tests！");
   } catch (error) {

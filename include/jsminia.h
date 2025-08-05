@@ -44,8 +44,8 @@ public:
    *
    * @param expressions The expressions to be processed.
    */
-  explicit JSMinia(const std::vector<std::string> &expressions)
-      : minia_(expressions) {}
+  explicit JSMinia(emscripten::val expressions)
+      : minia_(parse_expression(expressions)) {}
 
   /**
    * @brief Default destructor.
@@ -180,6 +180,22 @@ public:
       default:
         break;
       }
+    }
+    return ret;
+  }
+
+private:
+  std::vector<std::string> parse_expression(emscripten::val expressions) {
+    if (!expressions.isArray()) {
+      std::cerr << "Expressions Is Not an array!" << std::endl;
+      exit(-1);
+    }
+
+    int length = expressions["length"].as<int>();
+    std::vector<std::string> ret;
+    ret.reserve(length);
+    for (int i = 0; i < length; i++) {
+      ret.push_back(expressions[i].as<std::string>());
     }
     return ret;
   }
