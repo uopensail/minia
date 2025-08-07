@@ -720,6 +720,40 @@ template <typename T> int64_t greater_than_equal(const T a, const T b) {
 }
 
 /**
+ * @brief Counts the number of occurrences of a specific value in a vector
+ *
+ * This function iterates through a vector and counts how many elements
+ * are equal to the specified value using the equality operator (==).
+ *
+ * @tparam T The type of elements in the vector. Must support equality
+ * comparison (operator==)
+ * @param list The vector to search through (passed by const reference for
+ * efficiency)
+ * @param v The value to count occurrences of
+ * @return int64_t The number of times the value appears in the vector
+ */
+template <typename T> int64_t count(const std::vector<T> &list, const T v) {
+  return std::count(list.begin(), list.end(), v);
+}
+
+/**
+ * @brief Returns the number of elements in a vector
+ *
+ * This function provides a wrapper around std::vector::size() method,
+ * returning the count of elements as a signed 64-bit integer instead
+ * of the default size_t type.
+ *
+ * @tparam T The type of elements stored in the vector
+ * @param list The vector whose size is to be determined (passed by const
+ * reference)
+ * @return int64_t The number of elements in the vector as a signed 64-bit
+ * integer
+ */
+template <typename T> int64_t len(const std::vector<T> &list) {
+  return list.size();
+}
+
+/**
  * @brief Formats a timestamp into a date string
  * @param t Time value in seconds since epoch
  * @param fmt Format specification (default: "%Y-%m-%d")
@@ -879,16 +913,28 @@ const std::unordered_map<std::string, Function> builtins = {
     {"lte:2=[0,0]", get_func<less_than_equal<int64_t>, int64_t, int64_t>()},
     {"lte:2=[1,1]", get_func<less_than_equal<float>, float, float>()},
     {"eq:2=[0,0]", get_func<equal<int64_t>, int64_t, int64_t>()},
+    {"eq:2=[1,1]", get_func<equal<float>, float, float>()},
     {"eq:2=[2,2]", get_func<equal<std::string>, std::string, std::string>()},
     {"neq:2=[0,0]", get_func<not_equal<int64_t>, int64_t, int64_t>()},
+    {"neq:2=[1,1]", get_func<equal<float>, float, float>()},
     {"neq:2=[2,2]",
      get_func<not_equal<std::string>, std::string, std::string>()},
     {"gt:2=[0,0]", get_func<greater_than<int64_t>, int64_t, int64_t>()},
     {"gt:2=[1,1]", get_func<greater_than<float>, float, float>()},
     {"gte:2=[0,0]", get_func<greater_than_equal<int64_t>, int64_t, int64_t>()},
     {"gte:2=[1,1]", get_func<greater_than_equal<float>, float, float>()},
+    {"count:2=[3,0]",
+     get_func<count<int64_t>, std::vector<int64_t>, int64_t>()},
+    {"count:2=[4,1]", get_func<count<float>, std::vector<float>, float>()},
+    {"count:2=[5,2]",
+     get_func<count<std::string>, std::vector<std::string>, std::string>()},
+    {"len:1=[3]", get_func<len<int64_t>, std::vector<int64_t>>()},
+    {"len:1=[4]", get_func<len<float>, std::vector<float>>()},
+    {"len:1=[5]", get_func<len<std::string>, std::vector<std::string>>()},
     {"contains:2=[3,0]",
      get_func<contains<int64_t>, std::vector<int64_t>, int64_t>()},
+    {"contains:2=[4,1]",
+     get_func<contains<float>, std::vector<float>, float>()},
     {"contains:2=[5,2]",
      get_func<contains<std::string>, std::vector<std::string>, std::string>()},
     {"add:2=[0,0]", get_func<add<int64_t>, int64_t, int64_t>()},
@@ -1206,8 +1252,8 @@ const std::unordered_map<std::string, Function> builtins = {
     {"normalize:2=[4,1]",
      get_func<normalize<float>, std::vector<float>, float>()},
 
-    {"var:1=[0]", get_func<variance<int64_t>, std::vector<int64_t>>()},
-    {"var:1=[1]", get_func<variance<float>, std::vector<float>>()},
+    {"var:1=[3]", get_func<variance<int64_t>, std::vector<int64_t>>()},
+    {"var:1=[4]", get_func<variance<float>, std::vector<float>>()},
 
     {"z_score:3=[1,1,1]", get_func<z_score, float, float, float>()},
     {"z_score:3=[4,1,1]",
@@ -1218,34 +1264,34 @@ const std::unordered_map<std::string, Function> builtins = {
     {"std:1=[4]", get_func<stddev<float>, std::vector<float>>()},
 
     {"year:0=[]", get_func<year>()},
-    {"year:1=[1]", get_func<year_, int64_t>()},
+    {"year:1=[0]", get_func<year_, int64_t>()},
 
     {"month:0=[]", get_func<month>()},
-    {"month:1=[1]", get_func<month_, int64_t>()},
+    {"month:1=[0]", get_func<month_, int64_t>()},
 
     {"day:0=[]", get_func<day>()},
-    {"day:1=[1]", get_func<day_, int64_t>()},
+    {"day:1=[0]", get_func<day_, int64_t>()},
 
     {"curdate:0=[]", get_func<curdate>()},
-    {"curdate:1=[1]", get_func<curdate_, int64_t>()},
+    {"curdate:1=[0]", get_func<curdate_, int64_t>()},
 
     {"unix_timestamp:0=[]", get_func<unix_timestamp>()},
-    {"unix_timestamp:1=[1]", get_func<unix_timestamp_, int64_t>()},
+    {"unix_timestamp:1=[0]", get_func<unix_timestamp_, int64_t>()},
 
     {"from_unixtime:2=[0,2]", get_func<from_unixtime, int64_t, std::string>()},
     {"from_unixtime:2=[3,2]",
      get_func<repeat_apply<from_unixtime, std::vector<int64_t>, std::string>,
               std::vector<int64_t>, std::string>()},
 
-    {"date_add:2=[2,0,2]",
+    {"date_add:3=[2,0,2]",
      get_func<date_add, std::string, int64_t, std::string>()},
-    {"date_add:2=[5,0,2]",
+    {"date_add:3=[5,0,2]",
      get_func<
          repeat_apply<date_add, std::vector<std::string>, int64_t, std::string>,
          std::vector<std::string>, int64_t, std::string>()},
-    {"date_sub:2=[2,0,2]",
+    {"date_sub:3=[2,0,2]",
      get_func<date_sub, std::string, int64_t, std::string>()},
-    {"date_sub:2=[5,0,2]",
+    {"date_sub:3=[5,0,2]",
      get_func<
          repeat_apply<date_sub, std::vector<std::string>, int64_t, std::string>,
          std::vector<std::string>, int64_t, std::string>()},

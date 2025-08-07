@@ -83,6 +83,9 @@ public:
   virtual void enterNotExpr(miniaParser::NotExprContext *ctx) = 0;
   virtual void exitNotExpr(miniaParser::NotExprContext *ctx) = 0;
 
+  virtual void enterNegExpr(miniaParser::NegExprContext *ctx) = 0;
+  virtual void exitNegExpr(miniaParser::NegExprContext *ctx) = 0;
+
   virtual void enterTrivialPrimaryExpr(miniaParser::TrivialPrimaryExprContext *ctx) = 0;
   virtual void exitTrivialPrimaryExpr(miniaParser::TrivialPrimaryExprContext *ctx) = 0;
 

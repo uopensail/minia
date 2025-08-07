@@ -169,6 +169,9 @@ public:
   virtual void enterNotExpr(miniaParser::NotExprContext *ctx) {}
   virtual void exitNotExpr(miniaParser::NotExprContext *ctx);
 
+  virtual void enterNegExpr(miniaParser::NegExprContext *ctx) {}
+  virtual void exitNegExpr(miniaParser::NegExprContext *ctx);
+
   virtual void
   enterTrivialPrimaryExpr(miniaParser::TrivialPrimaryExprContext *ctx) {}
   virtual void
@@ -230,7 +233,11 @@ public:
   virtual void exitEveryRule(antlr4::ParserRuleContext *ctx) {}
 
 private:
+  std::shared_ptr<Expr> caluc(std::shared_ptr<Expr> expr);
+
+private:
   std::stack<std::shared_ptr<Expr>> exprs_; ///< Stack to hold expressions.
+
 public:
   std::vector<std::shared_ptr<Expr>>
       nodes_;                         ///< Vector to hold expression nodes.

@@ -1,4 +1,7 @@
 grammar minia;
+
+// antlr4 -Dlanguage=Cpp minia.g4
+
 options { caseInsensitive=true; }
 
 // Program structure
@@ -42,6 +45,7 @@ multiplicativeExpr : unaryExpr T_MUL unaryExpr # MulExpr
                    ;
 
 unaryExpr       : T_NOT unaryExpr # NotExpr 
+                | T_SUB unaryExpr # NegExpr
                 | primaryExpr     # TrivialPrimaryExpr
                 ;
 
@@ -101,7 +105,7 @@ DECIMAL_LIST    : '[' WS* (DECIMAL (WS* ',' WS* DECIMAL)*)? WS* ']';
 IDENTIFIER  options { caseInsensitive=false; } : [_a-zA-Z][_a-zA-Z0-9]*;
 
 // Numeric literals
-INTEGER     : '-'? '0' | [1-9][0-9]*;
+INTEGER     : '0' | [1-9][0-9]*;
 DECIMAL     : '-'? ([0-9]* '.' [0-9]+ | [0-9]+ '.' [0-9]*);
 
 // String literal with escape handling

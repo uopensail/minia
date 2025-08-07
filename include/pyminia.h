@@ -120,24 +120,48 @@ public:
         continue;
       }
       switch (f->type) {
-      case minia::DataType::kFloat32:
-        ret[k.c_str()] = f->get<float>();
+      case minia::DataType::kFloat32: {
+        py::dict value;
+        value["type"] = minia::DataType::kFloat32;
+        value["value"] = f->get<float>();
+        ret[k.c_str()] = value;
         break;
-      case minia::DataType::kFloat32s:
-        ret[k.c_str()] = py::cast(f->get<std::vector<float>>());
+      }
+      case minia::DataType::kFloat32s: {
+        py::dict value;
+        value["type"] = minia::DataType::kFloat32s;
+        value["value"] = py::cast(f->get<std::vector<float>>());
+        ret[k.c_str()] = value;
         break;
-      case minia::DataType::kInt64:
-        ret[k.c_str()] = f->get<int64_t>();
+      }
+      case minia::DataType::kInt64: {
+        py::dict value;
+        value["type"] = minia::DataType::kFloat32s;
+        value["value"] = f->get<int64_t>();
+        ret[k.c_str()] = value;
         break;
-      case minia::DataType::kInt64s:
-        ret[k.c_str()] = py::cast(f->get<std::vector<int64_t>>());
+      }
+      case minia::DataType::kInt64s: {
+        py::dict value;
+        value["type"] = minia::DataType::kFloat32s;
+        value["value"] = py::cast(f->get<std::vector<int64_t>>());
+        ret[k.c_str()] = value;
         break;
-      case minia::DataType::kString:
-        ret[k.c_str()] = f->get<std::string>();
+      }
+      case minia::DataType::kString: {
+        py::dict value;
+        value["type"] = minia::DataType::kFloat32s;
+        value["value"] = f->get<std::string>();
+        ret[k.c_str()] = value;
         break;
-      case minia::DataType::kStrings:
-        ret[k.c_str()] = py::cast(f->get<std::vector<std::string>>());
+      }
+      case minia::DataType::kStrings: {
+        py::dict value;
+        value["type"] = minia::DataType::kFloat32s;
+        value["value"] = py::cast(f->get<std::vector<std::string>>());
+        ret[k.c_str()] = value;
         break;
+      }
       default:
         break;
       }

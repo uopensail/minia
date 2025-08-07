@@ -413,6 +413,16 @@ public:
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
   };
 
+  class  NegExprContext : public UnaryExprContext {
+  public:
+    NegExprContext(UnaryExprContext *ctx);
+
+    antlr4::tree::TerminalNode *T_SUB();
+    UnaryExprContext *unaryExpr();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+  };
+
   class  NotExprContext : public UnaryExprContext {
   public:
     NotExprContext(UnaryExprContext *ctx);

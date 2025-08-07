@@ -29,7 +29,7 @@
 
 namespace minia {
 class Minia {
- public:
+public:
   /**
    * @brief Constructs a Minia object by parsing `expressions`
    *
@@ -72,7 +72,7 @@ class Minia {
    */
   const std::vector<std::string> &features() const { return features_; }
 
- private:
+private:
   // Type alias for a variable indexed by an integer and associated with a
   // string
   using IndexedVar = std::tuple<int32_t, std::string>;
@@ -86,12 +86,11 @@ class Minia {
    * feature arguments.
    */
   struct Op {
-    std::string out;   ///< The output identifier of the operation
-    std::string func;  ///< The function name associated with the operation
+    std::string out;  ///< The output identifier of the operation
+    std::string func; ///< The function name associated with the operation
     std::vector<IndexedVar>
-        vars;  ///< A vector of indexed variables used in the operation
-    std::vector<FeaturePtr>
-        args;  ///< A vector of feature pointers as arguments
+        vars; ///< A vector of indexed variables used in the operation
+    std::vector<FeaturePtr> args; ///< A vector of feature pointers as arguments
 
     /**
      * @brief Constructs the function name based on the operation's function
@@ -133,22 +132,6 @@ class Minia {
   void deduplicate(std::vector<std::shared_ptr<Expr>> &all_nodes);
 
   /**
-   * @brief Simplifies a collection of expressions by replacing variable
-   * expressions with literal expressions if all their arguments are literals.
-   *
-   * This function iterates through a list of expressions and attempts to
-   * simplify variable expressions into literal expressions. It uses a
-   * dictionary to map expression names to their respective expressions and
-   * looks up built-in functions to perform the simplification.
-   *
-   * @param all_nodes A vector of shared pointers to expressions to be
-   * simplified.
-   * @throws std::runtime_error If a built-in function is not found for a
-   * given expression.
-   */
-  void simplify(std::vector<std::shared_ptr<Expr>> &all_nodes);
-
-  /**
    * @brief Parses a list of expressions, simplifies and deduplicates nodes.
    *
    * This function combines given expressions into a single string, parses it
@@ -159,7 +142,7 @@ class Minia {
    */
   void parse(const std::string &exprs);
 
- private:
+private:
   std::vector<std::string>
       features_; /**< A vector storing the names of features. */
   std::vector<Op>
@@ -169,6 +152,6 @@ class Minia {
   std::unordered_map<std::string, FeaturePtr> literals_; /**< Literal valeus */
 };
 
-}  // namespace minia
+} // namespace minia
 
-#endif  // MINIA_H_
+#endif // MINIA_H_

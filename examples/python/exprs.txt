@@ -1,0 +1,170 @@
+hash("test_string")
+hash("")
+5 < 10
+15 <= 15
+10 == 10
+5 != 10
+20 >= 15
+25 > 20
+5.0 < 10.0
+15.0 <= 15.0
+10.0 == 10.0
+5.0 != 10.0
+20.0 >= 15.0
+25.0 > 20.0
+contains([1, 2, 3, 4, 5], 3)
+contains([1.0, 2.0, 3.0, 4.0, 5.0], 6.0)
+contains(["hello", "world"], "world")
+True & True
+True | False
+!False
+(5 > 3) & (10 < 20)
+(5.0 > 3.0) & (10.0 < 20.0)
+5 + 10
+20 - 5
+6 * 7
+100 / 5
+5.0 + 10.0
+20.0 - 5.0
+6.0 * 7.0
+100.0 / 5.0
+17 % 5
+ceil(4.2)
+ceil(-4.2)
+floor(4.8)
+floor(-4.8)
+sqrt(16.0)
+pow(2.0, 3.0)
+round(4.6)
+round(-4.6)
+cos(0.0)
+sin(0.0)
+log(2.718282)
+log10(100)
+log2(8.0)
+exp(1.0)
+avg([1, 2, 3, 4, 5])
+max([1, 5, 3, 9, 2])
+min([1, 5, 3, 9, 2])
+std([1, 2, 3, 4, 5])
+var([1, 2, 3, 4, 5])
+avg([1.0, 2.0, 3.0, 4.0, 5.0])
+max([1.0, 5.0, 3.0, 9.0, 2.0])
+min([1.0, 5.0, 3.0, 9.0, 2.0])
+std([1.0, 2.0, 3.0, 4.0, 5.0])
+var([1.0, 2.0, 3.0, 4.0, 5.0])
+concat("Hello", "World")
+concat_ws("-", ["2024", "03", "15"])
+concat_ws("", ["2024", "03", "15"])
+concat_ws("", [])
+concat_ws("-", [])
+concat_ws("-", ["2024"])
+concat_ws("", ["2024"])
+reverse("hello")
+substr("programming", 3, 4)
+substr("programming", 3, 6)
+upper("hello world")
+lower("HELLO WORLD")
+year()
+year(1754541070)
+month()
+month(1754541070)
+day()
+day(1754541070)
+curdate()
+curdate(1754541070)
+date_add("2024-01-01", 30, "DAY")
+date_sub("2024-01-31", 30, "DAY")
+date_diff("2024-01-31", "2024-01-01")
+cast(123)
+to_string(456)
+to_string(456.0)
+binary(10, 7)
+binary(10.0, 7.0)
+sqrt(pow(3.0, 2.0) + pow(4.0, 2.0))
+abs(sin(3.14159/4.0)) + cos(3.14159/4.0)
+upper(concat("hello", "world"))
+abs((0.0 - 6.7))
+abs((-6.7))
+abs(6)
+sin(-6)
+hash(str0)
+5 < int0
+int0 <= int1
+int0 == int1
+int0 != int1
+int0 >= int1
+int0 > int1
+f0 < f1
+f0 <= f1
+f0 == f1
+f0 != f1
+f0 >= f1
+f0 > f1
+contains(intlist0, int0)
+contains(floatlist0, f1)
+contains(strlist0, str0)
+True & True
+True | False
+!False
+(int0 > int1) & (int2 < int3)
+(f1 > f2) & (f3 < f4)
+int0 + int1
+int0 - int1
+int0 * int1
+int0 / int1
+f0 + f1
+f0 - f1
+f0 * f1
+f0 / f1
+int0 % int1
+ceil(f0)
+floor(f0)
+sqrt(f0)
+pow(f0, f1)
+round(f0)
+cos(f0)
+sin(f0)
+log(abs(f0))
+log10(abs(f0))
+log2(abs(f0))
+exp(f0)
+avg(intlist0)
+max(intlist0)
+min(intlist0)
+std(intlist0)
+var(intlist0)
+avg(floatlist0)
+max(floatlist0)
+min(floatlist0)
+std(floatlist0)
+var(floatlist0)
+concat(str0, "World")
+reverse(str0)
+substr(str0, 1, 3)
+upper(str0)
+lower(str0)
+year()
+year(ts)
+month()
+month(ts)
+day()
+day(ts)
+curdate()
+curdate(ts)
+date_add("2024-01-01", int0, "DAY")
+date_sub("2024-01-31", int0, "DAY")
+date_diff("2024-01-31", "2024-01-01")
+cast(int0)
+to_string(int0)
+to_string(f0)
+binary(int0, 7)
+binary(f0, 7.0)
+sqrt(abs(f0))
+upper(concat(str0, str1))
+len(intlist0)
+len(floatlist0)
+len(strlist0)
+count(intlist0, int0)
+count(floatlist0, f0)
+count(strlist0, str0)

@@ -85,6 +85,9 @@ public:
   virtual void enterNotExpr(miniaParser::NotExprContext * /*ctx*/) override { }
   virtual void exitNotExpr(miniaParser::NotExprContext * /*ctx*/) override { }
 
+  virtual void enterNegExpr(miniaParser::NegExprContext * /*ctx*/) override { }
+  virtual void exitNegExpr(miniaParser::NegExprContext * /*ctx*/) override { }
+
   virtual void enterTrivialPrimaryExpr(miniaParser::TrivialPrimaryExprContext * /*ctx*/) override { }
   virtual void exitTrivialPrimaryExpr(miniaParser::TrivialPrimaryExprContext * /*ctx*/) override { }
 

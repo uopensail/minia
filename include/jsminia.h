@@ -44,8 +44,26 @@ public:
    *
    * @param expressions The expressions to be processed.
    */
-  explicit JSMinia(emscripten::val expressions)
-      : minia_(parse_expression(expressions)) {}
+  explicit JSMinia(emscripten::val expressions) {
+    if (!expressions.isArray()) {
+      std::cerr << "Expressions Is Not an array!" << std::endl;
+      exit(-1);
+    }
+
+    int length = expressions["length"].as<int>();
+    std::vector<std::string> ret;
+    ret.reserve(length);
+    for (int i = 0; i < length; i++) {
+      ret.push_back(expressions[i].as<std::string>());
+    }
+
+    minia_ = std::make_unique<Minia>(ret);
+  }
+
+  /**
+   * @brief Release minia
+   */
+  void release() { minia_.reset(); }
 
   /**
    * @brief Default destructor.
@@ -129,9 +147,9 @@ public:
       }
     }
 
-    minia_.call(feas);
+    minia_->call(feas);
 
-    const auto &fkeys = minia_.features();
+    const auto &fkeys = minia_->features();
 
     emscripten::val ret = emscripten::val::object();
 
@@ -141,40 +159,61 @@ public:
         continue;
       }
       switch (f->type) {
-      case minia::DataType::kFloat32:
-        ret.set(k, f->get<float>());
+      case minia::DataType::kFloat32: {
+        emscripten::val value = emscripten::val::object();
+        value.set("type", int(minia::DataType::kFloat32));
+        value.set("value", f->get<float>());
+        ret.set(k, value);
         break;
+      }
       case minia::DataType::kFloat32s: {
         emscripten::val array = emscripten::val::array();
         const auto &values = f->get<std::vector<float>>();
         for (const auto &v : values) {
           array.call<void>("push", v);
         }
-        ret.set(k, array);
+        emscripten::val value = emscripten::val::object();
+        value.set("type", int(minia::DataType::kFloat32s));
+        value.set("value", array);
+        ret.set(k, value);
         break;
       }
-      case minia::DataType::kInt64:
-        ret.set(k, f->get<int64_t>());
+      case minia::DataType::kInt64: {
+        emscripten::val value = emscripten::val::object();
+        value.set("type", int(minia::DataType::kInt64));
+        value.set("value", f->get<int64_t>());
+        ret.set(k, value);
         break;
+      }
       case minia::DataType::kInt64s: {
         emscripten::val array = emscripten::val::array();
         const auto &values = f->get<std::vector<int64_t>>();
         for (const auto &v : values) {
           array.call<void>("push", v);
         }
-        ret.set(k, array);
+        emscripten::val value = emscripten::val::object();
+        value.set("type", int(minia::DataType::kInt64s));
+        value.set("value", array);
+        ret.set(k, value);
         break;
       }
-      case minia::DataType::kString:
-        ret.set(k, f->get<std::string>());
+      case minia::DataType::kString: {
+        emscripten::val value = emscripten::val::object();
+        value.set("type", int(minia::DataType::kString));
+        value.set("value", f->get<std::string>());
+        ret.set(k, value);
         break;
+      }
       case minia::DataType::kStrings: {
         emscripten::val array = emscripten::val::array();
         const auto &values = f->get<std::vector<std::string>>();
         for (const auto &v : values) {
           array.call<void>("push", v);
         }
-        ret.set(k, array);
+        emscripten::val value = emscripten::val::object();
+        value.set("type", int(minia::DataType::kStrings));
+        value.set("value", array);
+        ret.set(k, value);
         break;
       }
       default:
@@ -185,24 +224,8 @@ public:
   }
 
 private:
-  std::vector<std::string> parse_expression(emscripten::val expressions) {
-    if (!expressions.isArray()) {
-      std::cerr << "Expressions Is Not an array!" << std::endl;
-      exit(-1);
-    }
-
-    int length = expressions["length"].as<int>();
-    std::vector<std::string> ret;
-    ret.reserve(length);
-    for (int i = 0; i < length; i++) {
-      ret.push_back(expressions[i].as<std::string>());
-    }
-    return ret;
-  }
-
-private:
-  Minia minia_; /**< An instance of the Minia class to perform feature
-                   processing. */
+  std::unique_ptr<Minia> minia_; /**< An instance of the Minia class to
+                   perform feature processing. */
 };
 
 } // namespace minia

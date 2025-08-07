@@ -2,6 +2,8 @@
 
 #include <assert.h>
 
+#include "builtin.h"
+
 namespace minia {
 /**
  * @brief Exit function for start rule.
@@ -16,6 +18,7 @@ void MiniaListener::exitStart(miniaParser::StartContext *ctx) {
   auto expr = exprs_.top();
   expr->name = str;
   exprs_.pop();
+  nodes_.push_back(expr);
   features_.push_back(str);
 }
 
@@ -36,8 +39,12 @@ void MiniaListener::exitMulExpr(miniaParser::MulExprContext *ctx) {
       "node:" + std::to_string(g_node_count), "mul",
       std::vector<std::shared_ptr<Expr>>{left, right});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -161,8 +168,12 @@ void MiniaListener::exitSubExpr(miniaParser::SubExprContext *ctx) {
       "node:" + std::to_string(g_node_count), "sub",
       std::vector<std::shared_ptr<Expr>>{left, right});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -182,8 +193,12 @@ void MiniaListener::exitAddExpr(miniaParser::AddExprContext *ctx) {
       "node:" + std::to_string(g_node_count), "add",
       std::vector<std::shared_ptr<Expr>>{left, right});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -199,7 +214,6 @@ void MiniaListener::exitDecimalExpr(miniaParser::DecimalExprContext *ctx) {
     std::shared_ptr<Expr> ptr =
         std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
     exprs_.push(ptr);
-    nodes_.push_back(ptr);
     g_node_count++;
   } catch (const std::invalid_argument &e) {
     LOG(ERROR) << "Invalid number format:" << str << "\n";
@@ -266,7 +280,6 @@ void MiniaListener::exitStringListExpr(
   std::shared_ptr<Expr> ptr =
       std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
   g_node_count++;
 }
 
@@ -283,7 +296,6 @@ void MiniaListener::exitIntegerExpr(miniaParser::IntegerExprContext *ctx) {
     std::shared_ptr<Expr> ptr =
         std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
     exprs_.push(ptr);
-    nodes_.push_back(ptr);
     g_node_count++;
   } catch (const std::invalid_argument &e) {
     LOG(ERROR) << "Invalid number format: " << str << "\n";
@@ -311,8 +323,12 @@ void MiniaListener::exitDivExpr(miniaParser::DivExprContext *ctx) {
       "node:" + std::to_string(g_node_count), "div",
       std::vector<std::shared_ptr<Expr>>{left, right});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -332,8 +348,12 @@ void MiniaListener::exitModExpr(miniaParser::ModExprContext *ctx) {
       "node:" + std::to_string(g_node_count), "mod",
       std::vector<std::shared_ptr<Expr>>{left, right});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -409,7 +429,6 @@ void MiniaListener::exitIntegerListExpr(
   std::shared_ptr<Expr> ptr =
       std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
   g_node_count++;
 }
 
@@ -430,8 +449,12 @@ void MiniaListener::exitAndExpr(miniaParser::AndExprContext *ctx) {
       "node:" + std::to_string(g_node_count), "and",
       std::vector<std::shared_ptr<Expr>>{left, right});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -444,7 +467,6 @@ void MiniaListener::exitTrueExpr(miniaParser::TrueExprContext *ctx) {
   std::shared_ptr<Expr> ptr =
       std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
   g_node_count++;
 }
 
@@ -465,8 +487,12 @@ void MiniaListener::exitOrExpr(miniaParser::OrExprContext *ctx) {
       "node:" + std::to_string(g_node_count), "or",
       std::vector<std::shared_ptr<Expr>>{left, right});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -479,7 +505,6 @@ void MiniaListener::exitFalseExpr(miniaParser::FalseExprContext *ctx) {
   std::shared_ptr<Expr> ptr =
       std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
   g_node_count++;
 }
 
@@ -499,8 +524,43 @@ void MiniaListener::exitNotExpr(miniaParser::NotExprContext *ctx) {
       std::make_shared<Variable>("node:" + std::to_string(g_node_count), "not",
                                  std::vector<std::shared_ptr<Expr>>{expr});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
+}
+
+/**
+ * @brief Exit function for "-" expression rule.
+ * @param ctx Context of the "-" expression rule.
+ */
+void MiniaListener::exitNegExpr(miniaParser::NegExprContext *ctx) {
+  if (exprs_.size() < 1) {
+    LOG(ERROR) << "Insufficient operands for `-`.\n";
+    throw std::runtime_error("Insufficient operands for `-`.");
+  }
+  auto expr = exprs_.top();
+  exprs_.pop();
+
+  std::vector<std::shared_ptr<Expr>> args;
+
+  int64_t value = 0;
+  FeaturePtr f = std::make_shared<Feature>(std::move(value));
+  args.push_back(
+      std::make_shared<Literal>("node:" + std::to_string(g_node_count), f));
+  g_node_count++;
+  args.push_back(expr);
+  std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
+      "node:" + std::to_string(g_node_count), "sub", args);
+  g_node_count++;
+  ptr = caluc(ptr);
+  exprs_.push(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -526,8 +586,12 @@ void MiniaListener::exitGreaterThanEqualExpr(
       "node:" + std::to_string(g_node_count), "gte",
       std::vector<std::shared_ptr<Expr>>{left, right});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -553,8 +617,12 @@ void MiniaListener::exitLessThanEqualExpr(
       "node:" + std::to_string(g_node_count), "lte",
       std::vector<std::shared_ptr<Expr>>{left, right});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -579,8 +647,12 @@ void MiniaListener::exitLessThanExpr(miniaParser::LessThanExprContext *ctx) {
       "node:" + std::to_string(g_node_count), "lt",
       std::vector<std::shared_ptr<Expr>>{left, right});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -606,8 +678,12 @@ void MiniaListener::exitGreaterThanExpr(
       "node:" + std::to_string(g_node_count), "gt",
       std::vector<std::shared_ptr<Expr>>{left, right});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -632,8 +708,12 @@ void MiniaListener::exitNotEqualExpr(miniaParser::NotEqualExprContext *ctx) {
       "node:" + std::to_string(g_node_count), "neq",
       std::vector<std::shared_ptr<Expr>>{left, right});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -658,8 +738,12 @@ void MiniaListener::exitEqualExpr(miniaParser::EqualExprContext *ctx) {
       "node:" + std::to_string(g_node_count), "eq",
       std::vector<std::shared_ptr<Expr>>{left, right});
   g_node_count++;
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
 /**
@@ -691,10 +775,118 @@ void MiniaListener::exitFuncCall(miniaParser::FuncCallContext *ctx) {
 
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
       "node:" + std::to_string(g_node_count), str, args);
-
   g_node_count++;
+
+  ptr = caluc(ptr);
   exprs_.push(ptr);
-  nodes_.push_back(ptr);
+
+  if (ptr->type != ExprType::kExprTypeLiteral) {
+    nodes_.push_back(ptr);
+  }
 }
 
+std::shared_ptr<Expr> MiniaListener::caluc(std::shared_ptr<Expr> expr) {
+  if (expr->type != ExprType::kExprTypeVariable) {
+    return expr;
+  }
+
+  std::shared_ptr<Variable> func = std::dynamic_pointer_cast<Variable>(expr);
+
+  // particular process `and` / `or` / `not`
+  if (func->name == "and") {
+    if (func->args[0]->type == ExprType::kExprTypeLiteral) {
+      std::shared_ptr<Literal> argv =
+          std::dynamic_pointer_cast<Literal>(func->args[0]);
+      if (argv->value->get<int64_t>() == 1) {
+        return func->args[1];
+      } else {
+        int64_t value = 0;
+        FeaturePtr f = std::make_shared<Feature>(std::move(value));
+        std::shared_ptr<Expr> ptr = std::make_shared<Literal>(func->name, f);
+        return ptr;
+      }
+    } else if (func->args[1]->type == ExprType::kExprTypeLiteral) {
+      std::shared_ptr<Literal> argv =
+          std::dynamic_pointer_cast<Literal>(func->args[1]);
+      if (argv->value->get<int64_t>() == 1) {
+        return func->args[0];
+      } else {
+        int64_t value = 0;
+        FeaturePtr f = std::make_shared<Feature>(std::move(value));
+        std::shared_ptr<Expr> ptr = std::make_shared<Literal>(func->name, f);
+        return ptr;
+      }
+    }
+    return func;
+  } else if (func->name == "or") {
+    if (func->args[0]->type == ExprType::kExprTypeLiteral) {
+      std::shared_ptr<Literal> argv =
+          std::dynamic_pointer_cast<Literal>(func->args[0]);
+      if (argv->value->get<int64_t>() == 0) {
+        return func->args[1];
+      } else {
+        int64_t value = 1;
+        FeaturePtr f = std::make_shared<Feature>(std::move(value));
+        std::shared_ptr<Expr> ptr = std::make_shared<Literal>(func->name, f);
+        return ptr;
+      }
+    } else if (func->args[1]->type == ExprType::kExprTypeLiteral) {
+      std::shared_ptr<Literal> argv =
+          std::dynamic_pointer_cast<Literal>(func->args[1]);
+      if (argv->value->get<int64_t>() == 0) {
+        return func->args[0];
+      } else {
+        int64_t value = 1;
+        FeaturePtr f = std::make_shared<Feature>(std::move(value));
+        std::shared_ptr<Expr> ptr = std::make_shared<Literal>(func->name, f);
+        return ptr;
+      }
+      return func;
+    }
+  } else if (func->name == "not") {
+    if (func->args[0]->type == ExprType::kExprTypeLiteral) {
+      int64_t value = 0;
+      std::shared_ptr<Literal> argv =
+          std::dynamic_pointer_cast<Literal>(func->args[0]);
+      if (argv->value->get<int64_t>() == 0) {
+        value = 1;
+      }
+      FeaturePtr f = std::make_shared<Feature>(std::move(value));
+      std::shared_ptr<Expr> ptr = std::make_shared<Literal>(func->name, f);
+      return ptr;
+    }
+    return func;
+  }
+
+  bool literal = true;
+  for (const auto &argv : func->args) {
+    if (argv->type != ExprType::kExprTypeLiteral) {
+      literal = false;
+      break;
+    }
+  }
+
+  if (!literal) {
+    return expr;
+  }
+
+  std::string name =
+      func->func + ":" + std::to_string(func->args.size()) + "=[";
+  std::vector<FeaturePtr> args;
+
+  for (size_t j = 0; j < func->args.size(); ++j) {
+    auto tmp = std::dynamic_pointer_cast<Literal>(func->args[j]);
+    name +=
+        (j > 0 ? "," : "") + std::to_string(static_cast<int>(tmp->value->type));
+    args.push_back(tmp->value);
+  }
+  name += "]";
+
+  auto it = builtins.find(name);
+  if (it != builtins.end()) {
+    return std::make_shared<Literal>(func->name, it->second(args));
+  }
+  LOG(ERROR) << "Error: Built-in function not found for: " << name << "\n";
+  return func;
+}
 } // namespace minia

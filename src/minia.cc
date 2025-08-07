@@ -55,72 +55,17 @@ void Minia::parse(const std::string &exprs) {
 
   // Retrieve nodes from the listener
   auto nodes = listener.nodes_;
-
   features_ = listener.features_;
 
   for (const auto &k : features_) {
     name_mappings_[k] = k;
   }
 
-  // Simplify nodes
-  simplify(nodes);
-
   // Deduplicate nodes
   deduplicate(nodes);
 }
 
-void Minia::simplify(std::vector<std::shared_ptr<Expr>> &all_nodes) {
-  std::unordered_map<std::string, std::shared_ptr<Expr>> dict;
-
-  for (auto &node : all_nodes) {
-    if (node->type == ExprType::kExprTypeVariable) {
-      bool literal = true;
-      auto ptr = std::dynamic_pointer_cast<Variable>(node);
-      // Check if all arguments are literals
-      for (auto &arg : ptr->args) {
-        arg = dict[arg->name];
-        if (arg->type != ExprType::kExprTypeLiteral) {
-          literal = false;
-          break;
-        }
-      }
-
-      if (!literal) {
-        dict[node->name] = node;
-        continue;
-      }
-
-      std::string func =
-          ptr->func + ":" + std::to_string(ptr->args.size()) + "=[";
-      std::vector<FeaturePtr> args;
-
-      for (size_t j = 0; j < ptr->args.size(); ++j) {
-        auto tmp = std::dynamic_pointer_cast<Literal>(ptr->args[j]);
-        func += (j > 0 ? "," : "") +
-                std::to_string(static_cast<int>(tmp->value->type));
-        args.push_back(tmp->value);
-      }
-      func += "]";
-
-      auto it = builtins.find(func);
-      if (it != builtins.end()) {
-        node = std::make_shared<Literal>(ptr->name, it->second(args));
-      } else {
-        LOG(ERROR) << "Error: Built-in function not found for: " << func
-                   << "\n";
-        throw std::runtime_error("Error: Built-in function not found for " +
-                                 func);
-      }
-    }
-
-    dict[node->name] = node;
-  }
-}
-
 void Minia::deduplicate(std::vector<std::shared_ptr<Expr>> &all_nodes) {
-  // Simplify expressions before deduplication
-  simplify(all_nodes);
-
   // Maps expression names to their unique expression pointers
   std::unordered_map<std::string, std::shared_ptr<Expr>> name_mappings;
   // Stores unique expression nodes
@@ -167,7 +112,12 @@ void Minia::deduplicate(std::vector<std::shared_ptr<Expr>> &all_nodes) {
     bool is_duplicate = false;
     for (const auto &existing_node : unique_nodes) {
       if (are_expressions_equal(node, existing_node)) {
-        name_mappings[node->name] = existing_node;
+        if (existing_node->type == ExprType::kExprTypeLiteral) {
+          auto var = std::dynamic_pointer_cast<Literal>(existing_node);
+          literals_[node->name] = var->value;
+        } else {
+          name_mappings[node->name] = existing_node;
+        }
         is_duplicate = true;
         break;
       }

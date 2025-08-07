@@ -135,6 +135,8 @@ The expressions are written in strings , which define how features should be tra
 | cast           | Converts a value from one type to another.                     |
 | to_string      | Converts a value to a string representation.                   |
 | topk           | Retrieves the top k elements from a set.                       |
+| count          | Counts the number of occurrences of in a vector.               |
+| len            | Returns the number of elements in a vector.                    |
 
 ## Data Types
 Minia supports a range of data types to accommodate various data needs. The following table outlines the supported data types:

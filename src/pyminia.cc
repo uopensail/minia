@@ -14,11 +14,25 @@ PYBIND11_MODULE(pyminia, m) {
     )pbdoc";
 
   /**
+   * @brief Data type enumeration for the minia framework
+   * @details Defines scalar and array types for integers, floats, strings, and
+   * error handling
+   */
+  py::enum_<minia::DataType>(m, "DataType")
+      .value("kInt64", minia::DataType::kInt64)     ///< 64-bit signed integer
+      .value("kFloat32", minia::DataType::kFloat32) ///< 32-bit floating point
+      .value("kString", minia::DataType::kString)   ///< String type
+      .value("kInt64s", minia::DataType::kInt64s) ///< Array of 64-bit integers
+      .value("kFloat32s",
+             minia::DataType::kFloat32s)            ///< Array of 32-bit floats
+      .value("kStrings", minia::DataType::kStrings) ///< Array of strings
+      .value("kError", minia::DataType::kError);    ///< Error type indicator
+
+  /**
    * @class Minia
    * @brief A class for processing features using configured expressions.
    *
-   * The Minia class reads and processes expressions and features from
-   * a TOML configuration file, facilitating operations on features.
+   * The Minia class reads and processes expressions
    */
   py::class_<minia::PyMinia>(m, "Minia")
       .def(py::init<const std::vector<std::string> &>(), py::arg("exprs"),
