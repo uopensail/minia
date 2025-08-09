@@ -57,7 +57,7 @@ public:
    */
   explicit PyMinia(const std::vector<std::string> &expressions)
       : minia_(expressions) {
-    enable_glog("./logs", ERROR);
+    enable_glog("/tmp", ERROR);
   }
 
   /**
@@ -136,28 +136,28 @@ public:
       }
       case minia::DataType::kInt64: {
         py::dict value;
-        value["type"] = minia::DataType::kFloat32s;
+        value["type"] = minia::DataType::kInt64;
         value["value"] = f->get<int64_t>();
         ret[k.c_str()] = value;
         break;
       }
       case minia::DataType::kInt64s: {
         py::dict value;
-        value["type"] = minia::DataType::kFloat32s;
+        value["type"] = minia::DataType::kInt64s;
         value["value"] = py::cast(f->get<std::vector<int64_t>>());
         ret[k.c_str()] = value;
         break;
       }
       case minia::DataType::kString: {
         py::dict value;
-        value["type"] = minia::DataType::kFloat32s;
+        value["type"] = minia::DataType::kString;
         value["value"] = f->get<std::string>();
         ret[k.c_str()] = value;
         break;
       }
       case minia::DataType::kStrings: {
         py::dict value;
-        value["type"] = minia::DataType::kFloat32s;
+        value["type"] = minia::DataType::kStrings;
         value["value"] = py::cast(f->get<std::vector<std::string>>());
         ret[k.c_str()] = value;
         break;

@@ -72,7 +72,7 @@ export interface Feature {
  * @type Features
  * @description Collection of named features indexed by string keys
  */
-export type Features = Readonly<Record<string, Feature>>;
+export type Features = Record<string, Feature>;
 
 /**
  * @interface JSMiniaInstance
