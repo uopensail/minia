@@ -179,15 +179,19 @@ std::string lower(const std::string &str) {
 std::string substr(const std::string &str, const int64_t pos,
                    const int64_t len) {
   int64_t p = pos;
-  if (pos < 0)
+  if (pos < 0) {
     p = str.length() + pos + 1;
-  if (p < 1 || p > str.length())
+  }
+
+  if (p < 1 || p > str.length()) {
     return "";
+  }
 
   int64_t n = len;
   size_t start = p - 1;
-  if (n < 0)
+  if (n < 0) {
     n = str.length();
+  }
   return str.substr(start, len);
 }
 

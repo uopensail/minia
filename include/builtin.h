@@ -905,38 +905,203 @@ const std::unordered_map<std::string, Function> builtins = {
      get_func<identity<std::vector<float>>, std::vector<float>>()},
     {"identity:1=[5]",
      get_func<identity<std::vector<std::string>>, std::vector<std::string>>()},
+
+    // and
     {"and:2=[0,0]", get_func<_and, int64_t, int64_t>()},
+    {"and:2=[0,3]", get_func<repeat_apply<_and, int64_t, std::vector<int64_t>>,
+                             int64_t, std::vector<int64_t>>()},
+    {"and:2=[3,0]", get_func<repeat_apply<_and, std::vector<int64_t>, int64_t>,
+                             std::vector<int64_t>, int64_t>()},
+    {"and:2=[3,3]", get_func<map_apply<_and, int64_t, int64_t>,
+                             std::vector<int64_t>, std::vector<int64_t>>()},
+
+    // or
     {"or:2=[0,0]", get_func<_or, int64_t, int64_t>()},
+    {"or:2=[0,3]", get_func<repeat_apply<_or, int64_t, std::vector<int64_t>>,
+                            int64_t, std::vector<int64_t>>()},
+    {"or:2=[3,0]", get_func<repeat_apply<_or, std::vector<int64_t>, int64_t>,
+                            std::vector<int64_t>, int64_t>()},
+    {"or:2=[3,3]", get_func<map_apply<_or, int64_t, int64_t>,
+                            std::vector<int64_t>, std::vector<int64_t>>()},
+
+    // not
     {"not:1=[0]", get_func<_not, int64_t>()},
+    {"not:1=[3]", get_func<repeat_apply<_not, std::vector<int64_t>>,
+                           std::vector<int64_t>>()},
+
+    // <
     {"lt:2=[0,0]", get_func<less_than<int64_t>, int64_t, int64_t>()},
+    {"lt:2=[0,3]",
+     get_func<repeat_apply<less_than<int64_t>, int64_t, std::vector<int64_t>>,
+              int64_t, std::vector<int64_t>>()},
+    {"lt:2=[3,0]",
+     get_func<repeat_apply<less_than<int64_t>, std::vector<int64_t>, int64_t>,
+              std::vector<int64_t>, int64_t>()},
+    {"lt:2=[3,3]", get_func<map_apply<less_than<int64_t>, int64_t, int64_t>,
+                            std::vector<int64_t>, std::vector<int64_t>>()},
     {"lt:2=[1,1]", get_func<less_than<float>, float, float>()},
+    {"lt:2=[1,4]",
+     get_func<repeat_apply<less_than<float>, float, std::vector<float>>, float,
+              std::vector<float>>()},
+    {"lt:2=[4,1]",
+     get_func<repeat_apply<less_than<float>, std::vector<float>, float>,
+              std::vector<float>, float>()},
+    {"lt:2=[4,4]", get_func<map_apply<less_than<float>, float, float>,
+                            std::vector<float>, std::vector<float>>()},
+
+    // <=
     {"lte:2=[0,0]", get_func<less_than_equal<int64_t>, int64_t, int64_t>()},
+    {"lte:2=[0,3]",
+     get_func<
+         repeat_apply<less_than_equal<int64_t>, int64_t, std::vector<int64_t>>,
+         int64_t, std::vector<int64_t>>()},
+    {"lte:2=[3,0]",
+     get_func<
+         repeat_apply<less_than_equal<int64_t>, std::vector<int64_t>, int64_t>,
+         std::vector<int64_t>, int64_t>()},
+    {"lte:2=[3,3]",
+     get_func<map_apply<less_than_equal<int64_t>, int64_t, int64_t>,
+              std::vector<int64_t>, std::vector<int64_t>>()},
     {"lte:2=[1,1]", get_func<less_than_equal<float>, float, float>()},
+    {"lte:2=[1,4]",
+     get_func<repeat_apply<less_than_equal<float>, float, std::vector<float>>,
+              float, std::vector<float>>()},
+    {"lte:2=[4,1]",
+     get_func<repeat_apply<less_than_equal<float>, std::vector<float>, float>,
+              std::vector<float>, float>()},
+    {"lte:2=[4,4]", get_func<map_apply<less_than_equal<float>, float, float>,
+                             std::vector<float>, std::vector<float>>()},
+
+    // =
+
     {"eq:2=[0,0]", get_func<equal<int64_t>, int64_t, int64_t>()},
+    {"eq:2=[0,3]",
+     get_func<repeat_apply<equal<int64_t>, int64_t, std::vector<int64_t>>,
+              int64_t, std::vector<int64_t>>()},
+    {"eq:2=[3,0]",
+     get_func<repeat_apply<equal<int64_t>, std::vector<int64_t>, int64_t>,
+              std::vector<int64_t>, int64_t>()},
+    {"eq:2=[3,3]", get_func<map_apply<equal<int64_t>, int64_t, int64_t>,
+                            std::vector<int64_t>, std::vector<int64_t>>()},
     {"eq:2=[1,1]", get_func<equal<float>, float, float>()},
+    {"eq:2=[1,4]",
+     get_func<repeat_apply<equal<float>, float, std::vector<float>>, float,
+              std::vector<float>>()},
+    {"eq:2=[4,1]",
+     get_func<repeat_apply<equal<float>, std::vector<float>, float>,
+              std::vector<float>, float>()},
+    {"eq:2=[4,4]", get_func<map_apply<equal<float>, float, float>,
+                            std::vector<float>, std::vector<float>>()},
     {"eq:2=[2,2]", get_func<equal<std::string>, std::string, std::string>()},
+    {"eq:2=[2,5]", get_func<repeat_apply<equal<std::string>, std::string,
+                                         std::vector<std::string>>,
+                            std::string, std::vector<std::string>>()},
+    {"eq:2=[5,2]", get_func<repeat_apply<equal<std::string>,
+                                         std::vector<std::string>, std::string>,
+                            std::vector<std::string>, std::string>()},
+    {"eq:2=[5,5]",
+     get_func<map_apply<equal<std::string>, std::string, std::string>,
+              std::vector<std::string>, std::vector<std::string>>()},
+
+    // !=
     {"neq:2=[0,0]", get_func<not_equal<int64_t>, int64_t, int64_t>()},
-    {"neq:2=[1,1]", get_func<equal<float>, float, float>()},
+    {"neq:2=[0,3]",
+     get_func<repeat_apply<not_equal<int64_t>, int64_t, std::vector<int64_t>>,
+              int64_t, std::vector<int64_t>>()},
+    {"neq:2=[3,0]",
+     get_func<repeat_apply<not_equal<int64_t>, std::vector<int64_t>, int64_t>,
+              std::vector<int64_t>, int64_t>()},
+    {"neq:2=[3,3]", get_func<map_apply<not_equal<int64_t>, int64_t, int64_t>,
+                             std::vector<int64_t>, std::vector<int64_t>>()},
+    {"neq:2=[1,1]", get_func<not_equal<float>, float, float>()},
+    {"neq:2=[1,4]",
+     get_func<repeat_apply<not_equal<float>, float, std::vector<float>>, float,
+              std::vector<float>>()},
+    {"neq:2=[4,1]",
+     get_func<repeat_apply<not_equal<float>, std::vector<float>, float>,
+              std::vector<float>, float>()},
+    {"neq:2=[4,4]", get_func<map_apply<not_equal<float>, float, float>,
+                             std::vector<float>, std::vector<float>>()},
     {"neq:2=[2,2]",
      get_func<not_equal<std::string>, std::string, std::string>()},
+    {"neq:2=[2,5]", get_func<repeat_apply<not_equal<std::string>, std::string,
+                                          std::vector<std::string>>,
+                             std::string, std::vector<std::string>>()},
+    {"neq:2=[5,2]",
+     get_func<repeat_apply<not_equal<std::string>, std::vector<std::string>,
+                           std::string>,
+              std::vector<std::string>, std::string>()},
+    {"neq:2=[5,5]",
+     get_func<map_apply<not_equal<std::string>, std::string, std::string>,
+              std::vector<std::string>, std::vector<std::string>>()},
+
+    // >
     {"gt:2=[0,0]", get_func<greater_than<int64_t>, int64_t, int64_t>()},
+    {"gt:2=[0,3]",
+     get_func<
+         repeat_apply<greater_than<int64_t>, int64_t, std::vector<int64_t>>,
+         int64_t, std::vector<int64_t>>()},
+    {"gt:2=[3,0]",
+     get_func<
+         repeat_apply<greater_than<int64_t>, std::vector<int64_t>, int64_t>,
+         std::vector<int64_t>, int64_t>()},
+    {"gt:2=[3,3]", get_func<map_apply<greater_than<int64_t>, int64_t, int64_t>,
+                            std::vector<int64_t>, std::vector<int64_t>>()},
     {"gt:2=[1,1]", get_func<greater_than<float>, float, float>()},
+    {"gt:2=[1,4]",
+     get_func<repeat_apply<greater_than<float>, float, std::vector<float>>,
+              float, std::vector<float>>()},
+    {"gt:2=[4,1]",
+     get_func<repeat_apply<greater_than<float>, std::vector<float>, float>,
+              std::vector<float>, float>()},
+    {"gt:2=[4,4]", get_func<map_apply<greater_than<float>, float, float>,
+                            std::vector<float>, std::vector<float>>()},
+
+    // >=
     {"gte:2=[0,0]", get_func<greater_than_equal<int64_t>, int64_t, int64_t>()},
+    {"gte:2=[0,3]", get_func<repeat_apply<greater_than_equal<int64_t>, int64_t,
+                                          std::vector<int64_t>>,
+                             int64_t, std::vector<int64_t>>()},
+    {"gte:2=[3,0]", get_func<repeat_apply<greater_than_equal<int64_t>,
+                                          std::vector<int64_t>, int64_t>,
+                             std::vector<int64_t>, int64_t>()},
+
+    {"gte:2=[3,3]",
+     get_func<map_apply<greater_than_equal<int64_t>, int64_t, int64_t>,
+              std::vector<int64_t>, std::vector<int64_t>>()},
     {"gte:2=[1,1]", get_func<greater_than_equal<float>, float, float>()},
+    {"gte:2=[1,4]",
+     get_func<
+         repeat_apply<greater_than_equal<float>, float, std::vector<float>>,
+         float, std::vector<float>>()},
+    {"gte:2=[4,1]",
+     get_func<
+         repeat_apply<greater_than_equal<float>, std::vector<float>, float>,
+         std::vector<float>, float>()},
+    {"gte:2=[4,4]", get_func<map_apply<greater_than_equal<float>, float, float>,
+                             std::vector<float>, std::vector<float>>()},
+
+    // count
     {"count:2=[3,0]",
      get_func<count<int64_t>, std::vector<int64_t>, int64_t>()},
     {"count:2=[4,1]", get_func<count<float>, std::vector<float>, float>()},
     {"count:2=[5,2]",
      get_func<count<std::string>, std::vector<std::string>, std::string>()},
+
+    // len
     {"len:1=[3]", get_func<len<int64_t>, std::vector<int64_t>>()},
     {"len:1=[4]", get_func<len<float>, std::vector<float>>()},
     {"len:1=[5]", get_func<len<std::string>, std::vector<std::string>>()},
+
+    // contains
     {"contains:2=[3,0]",
      get_func<contains<int64_t>, std::vector<int64_t>, int64_t>()},
     {"contains:2=[4,1]",
      get_func<contains<float>, std::vector<float>, float>()},
     {"contains:2=[5,2]",
      get_func<contains<std::string>, std::vector<std::string>, std::string>()},
+
+    // +
     {"add:2=[0,0]", get_func<add<int64_t>, int64_t, int64_t>()},
     {"add:2=[0,1]", get_func<add<float>, int64_t, float>()},
     {"add:2=[1,0]", get_func<add<float>, float, int64_t>()},
@@ -970,6 +1135,7 @@ const std::unordered_map<std::string, Function> builtins = {
     {"add:2=[4,4]", get_func<map_apply<add<float>, float, float>,
                              std::vector<float>, std::vector<float>>()},
 
+    // -
     {"sub:2=[0,0]", get_func<sub<int64_t>, int64_t, int64_t>()},
     {"sub:2=[0,1]", get_func<sub<float>, int64_t, float>()},
     {"sub:2=[1,0]", get_func<sub<float>, float, int64_t>()},
@@ -1003,6 +1169,7 @@ const std::unordered_map<std::string, Function> builtins = {
     {"sub:2=[4,4]", get_func<map_apply<sub<float>, float, float>,
                              std::vector<float>, std::vector<float>>()},
 
+    // *
     {"mul:2=[0,0]", get_func<mul<int64_t>, int64_t, int64_t>()},
     {"mul:2=[0,1]", get_func<mul<float>, int64_t, float>()},
     {"mul:2=[1,0]", get_func<mul<float>, float, int64_t>()},
@@ -1036,6 +1203,7 @@ const std::unordered_map<std::string, Function> builtins = {
     {"mul:2=[4,4]", get_func<map_apply<mul<float>, float, float>,
                              std::vector<float>, std::vector<float>>()},
 
+    // /
     {"div:2=[0,0]", get_func<div<int64_t>, int64_t, int64_t>()},
     {"div:2=[0,1]", get_func<div<float>, int64_t, float>()},
     {"div:2=[1,0]", get_func<div<float>, float, int64_t>()},
@@ -1088,10 +1256,12 @@ const std::unordered_map<std::string, Function> builtins = {
     {"div:2=[4,4]", get_func<map_apply<div<float>, float, float>,
                              std::vector<float>, std::vector<float>>()},
 
+    // %
     {"mod:2=[0,0]", get_func<mod, int64_t, int64_t>()},
     {"mod:2=[3,0]", get_func<repeat_apply<mod, std::vector<int64_t>, int64_t>,
                              std::vector<int64_t>, int64_t>()},
 
+    // abs
     {"abs:1=[0]", get_func<_abs<int64_t>, int64_t>()},
     {"abs:1=[1]", get_func<_abs<float>, float>()},
     {"abs:1=[3]", get_func<repeat_apply<_abs<int64_t>, std::vector<int64_t>>,
@@ -1099,17 +1269,22 @@ const std::unordered_map<std::string, Function> builtins = {
     {"abs:1=[4]", get_func<repeat_apply<_abs<float>, std::vector<float>>,
                            std::vector<float>>()},
 
+    // ceil
     {"ceil:1=[1]", get_func<ceil, float>()},
     {"ceil:1=[4]",
      get_func<repeat_apply<ceil, std::vector<float>>, std::vector<float>>()},
+
+    // floor
     {"floor:1=[1]", get_func<floor, float>()},
     {"floor:1=[4]",
      get_func<repeat_apply<floor, std::vector<float>>, std::vector<float>>()},
 
+    // round
     {"round:1=[1]", get_func<round, float>()},
     {"round:1=[4]",
      get_func<repeat_apply<round, std::vector<float>>, std::vector<float>>()},
 
+    // cosh
     {"cosh:1=[1]", get_func<::coshf, float>()},
     {"cosh:1=[0]", get_func<::coshf, int64_t>()},
     {"cosh:1=[3]", get_func<repeat_apply<::coshf, std::vector<int64_t>>,
@@ -1117,6 +1292,7 @@ const std::unordered_map<std::string, Function> builtins = {
     {"cosh:1=[4]",
      get_func<repeat_apply<::coshf, std::vector<float>>, std::vector<float>>()},
 
+    // cos
     {"cos:1=[1]", get_func<::cosf, float>()},
     {"cos:1=[0]", get_func<::cosf, int64_t>()},
     {"cos:1=[3]", get_func<repeat_apply<::cosf, std::vector<int64_t>>,
@@ -1124,6 +1300,7 @@ const std::unordered_map<std::string, Function> builtins = {
     {"cos:1=[4]",
      get_func<repeat_apply<::cosf, std::vector<float>>, std::vector<float>>()},
 
+    // exp
     {"exp:1=[1]", get_func<::expf, float>()},
     {"exp:1=[0]", get_func<::expf, int64_t>()},
     {"exp:1=[3]", get_func<repeat_apply<::expf, std::vector<int64_t>>,
@@ -1131,6 +1308,7 @@ const std::unordered_map<std::string, Function> builtins = {
     {"exp:1=[4]",
      get_func<repeat_apply<::expf, std::vector<float>>, std::vector<float>>()},
 
+    // log
     {"log:1=[1]", get_func<::logf, float>()},
     {"log:1=[0]", get_func<::logf, int64_t>()},
     {"log:1=[3]", get_func<repeat_apply<::logf, std::vector<int64_t>>,
@@ -1138,6 +1316,7 @@ const std::unordered_map<std::string, Function> builtins = {
     {"log:1=[4]",
      get_func<repeat_apply<::logf, std::vector<float>>, std::vector<float>>()},
 
+    // log10
     {"log10:1=[1]", get_func<::log10f, float>()},
     {"log10:1=[0]", get_func<::log10f, int64_t>()},
     {"log10:1=[3]", get_func<repeat_apply<::log10f, std::vector<int64_t>>,
@@ -1145,6 +1324,7 @@ const std::unordered_map<std::string, Function> builtins = {
     {"log10:1=[4]", get_func<repeat_apply<::log10f, std::vector<float>>,
                              std::vector<float>>()},
 
+    // log2
     {"log2:1=[1]", get_func<::log2f, float>()},
     {"log2:1=[0]", get_func<::log2f, int64_t>()},
     {"log2:1=[3]", get_func<repeat_apply<::log2f, std::vector<int64_t>>,
@@ -1152,6 +1332,7 @@ const std::unordered_map<std::string, Function> builtins = {
     {"log2:1=[4]",
      get_func<repeat_apply<::log2f, std::vector<float>>, std::vector<float>>()},
 
+    // sqrt
     {"sqrt:1=[1]", get_func<::sqrtf, float>()},
     {"sqrt:1=[0]", get_func<::sqrtf, int64_t>()},
     {"sqrt:1=[3]", get_func<repeat_apply<::sqrtf, std::vector<int64_t>>,
@@ -1159,6 +1340,7 @@ const std::unordered_map<std::string, Function> builtins = {
     {"sqrt:1=[4]",
      get_func<repeat_apply<::sqrtf, std::vector<float>>, std::vector<float>>()},
 
+    // sigmoid
     {"sigmoid:1=[1]", get_func<sigmoid, float>()},
     {"sigmoid:1=[0]", get_func<sigmoid, int64_t>()},
     {"sigmoid:1=[3]", get_func<repeat_apply<sigmoid, std::vector<int64_t>>,
@@ -1166,6 +1348,7 @@ const std::unordered_map<std::string, Function> builtins = {
     {"sigmoid:1=[4]",
      get_func<repeat_apply<sigmoid, std::vector<float>>, std::vector<float>>()},
 
+    // sinh
     {"sinh:1=[1]", get_func<::sinhf, float>()},
     {"sinh:1=[0]", get_func<::sinhf, int64_t>()},
     {"sinh:1=[3]", get_func<repeat_apply<::sinhf, std::vector<int64_t>>,
@@ -1173,6 +1356,7 @@ const std::unordered_map<std::string, Function> builtins = {
     {"sinh:1=[4]",
      get_func<repeat_apply<::sinhf, std::vector<float>>, std::vector<float>>()},
 
+    // sin
     {"sin:1=[1]", get_func<sinf, float>()},
     {"sin:1=[0]", get_func<sinf, int64_t>()},
     {"sin:1=[3]", get_func<repeat_apply<sinf, std::vector<int64_t>>,
@@ -1180,6 +1364,7 @@ const std::unordered_map<std::string, Function> builtins = {
     {"sin:1=[4]",
      get_func<repeat_apply<sinf, std::vector<float>>, std::vector<float>>()},
 
+    // tanh
     {"tanh:1=[1]", get_func<::tanhf, float>()},
     {"tanh:1=[0]", get_func<::tanhf, int64_t>()},
     {"tanh:1=[3]", get_func<repeat_apply<::tanhf, std::vector<int64_t>>,
@@ -1187,6 +1372,15 @@ const std::unordered_map<std::string, Function> builtins = {
     {"tanh:1=[4]",
      get_func<repeat_apply<::tanhf, std::vector<float>>, std::vector<float>>()},
 
+    // tan
+    {"tan:1=[1]", get_func<::tanf, float>()},
+    {"tan:1=[0]", get_func<::tanf, int64_t>()},
+    {"tan:1=[3]", get_func<repeat_apply<::tanf, std::vector<int64_t>>,
+                           std::vector<int64_t>>()},
+    {"tan:1=[4]",
+     get_func<repeat_apply<::tanf, std::vector<float>>, std::vector<float>>()},
+
+    // pow
     {"pow:2=[0,0]", get_func<::powf, int64_t, int64_t>()},
     {"pow:2=[0,1]", get_func<::powf, int64_t, float>()},
     {"pow:2=[1,0]", get_func<::powf, float, int64_t>()},
@@ -1201,15 +1395,19 @@ const std::unordered_map<std::string, Function> builtins = {
     {"pow:2=[4,1]", get_func<repeat_apply<::powf, std::vector<float>, float>,
                              std::vector<float>, float>()},
 
+    // avg
     {"avg:1=[3]", get_func<average<int64_t>, std::vector<int64_t>>()},
     {"avg:1=[4]", get_func<average<float>, std::vector<float>>()},
 
+    // max
     {"max:1=[3]", get_func<max<int64_t>, std::vector<int64_t>>()},
     {"max:1=[4]", get_func<max<float>, std::vector<float>>()},
 
+    // min
     {"min:1=[3]", get_func<min<int64_t>, std::vector<int64_t>>()},
     {"min:1=[4]", get_func<min<float>, std::vector<float>>()},
 
+    // min_max
     {"min_max:3=[0,0,0]",
      get_func<min_max<int64_t>, int64_t, int64_t, int64_t>()},
     {"min_max:3=[3,0,0]",
@@ -1221,6 +1419,7 @@ const std::unordered_map<std::string, Function> builtins = {
      get_func<repeat_apply<min_max<float>, std::vector<float>, float, float>,
               std::vector<float>, float, float>()},
 
+    // binary
     {"binary:2=[0,0]", get_func<binarize<int64_t>, int64_t, int64_t>()},
     {"binary:2=[3,0]",
      get_func<repeat_apply<binarize<int64_t>, std::vector<int64_t>, int64_t>,
@@ -1231,6 +1430,7 @@ const std::unordered_map<std::string, Function> builtins = {
      get_func<repeat_apply<binarize<float>, std::vector<float>, float>,
               std::vector<float>, float>()},
 
+    // bucket
     {"bucket:2=[0,3]",
      get_func<bucketize<int64_t>, int64_t, std::vector<int64_t>>()},
     {"bucket:2=[1,4]", get_func<bucketize<float>, float, std::vector<float>>()},
@@ -1239,62 +1439,120 @@ const std::unordered_map<std::string, Function> builtins = {
     {"bucket:2=[4,4]", get_func<repeat_bucketize<float>, std::vector<float>,
                                 std::vector<float>>()},
 
+    // box_cox
+    {"box_cox:2=[0,0]", get_func<box_cox, int64_t, int64_t>()},
+    {"box_cox:2=[1,0]", get_func<box_cox, float, int64_t>()},
+    {"box_cox:2=[0,1]", get_func<box_cox, int64_t, float>()},
+    {"box_cox:2=[3,0]",
+     get_func<repeat_apply<box_cox, std::vector<int64_t>, int64_t>,
+              std::vector<int64_t>, int64_t>()},
+    {"box_cox:2=[3,1]",
+     get_func<repeat_apply<box_cox, std::vector<int64_t>, float>,
+              std::vector<int64_t>, float>()},
     {"box_cox:2=[1,1]", get_func<box_cox, float, float>()},
     {"box_cox:2=[4,1]",
      get_func<repeat_apply<box_cox, std::vector<float>, float>,
               std::vector<float>, float>()},
 
+    // norm
+    {"norm:2=[3,0]", get_func<norm<int64_t>, std::vector<int64_t>, int64_t>()},
     {"norm:2=[3,1]", get_func<norm<int64_t>, std::vector<int64_t>, float>()},
     {"norm:2=[4,1]", get_func<norm<float>, std::vector<float>, float>()},
+    {"norm:2=[4,0]", get_func<norm<float>, std::vector<float>, int64_t>()},
 
+    // normalize
+    {"normalize:2=[3,0]",
+     get_func<normalize<int64_t>, std::vector<int64_t>, int64_t>()},
     {"normalize:2=[3,1]",
      get_func<normalize<int64_t>, std::vector<int64_t>, float>()},
+    {"normalize:2=[4,0]",
+     get_func<normalize<float>, std::vector<float>, int64_t>()},
     {"normalize:2=[4,1]",
      get_func<normalize<float>, std::vector<float>, float>()},
 
+    // var
     {"var:1=[3]", get_func<variance<int64_t>, std::vector<int64_t>>()},
     {"var:1=[4]", get_func<variance<float>, std::vector<float>>()},
 
+    // z_score
+    {"z_score:3=[0,0,0]", get_func<z_score, int64_t, int64_t, int64_t>()},
+    {"z_score:3=[0,1,0]", get_func<z_score, int64_t, float, int64_t>()},
+    {"z_score:3=[0,0,1]", get_func<z_score, int64_t, int64_t, float>()},
+    {"z_score:3=[0,1,1]", get_func<z_score, int64_t, float, float>()},
+    {"z_score:3=[3,0,0]",
+     get_func<repeat_apply<z_score, std::vector<int64_t>, int64_t, int64_t>,
+              std::vector<int64_t>, int64_t, int64_t>()},
+    {"z_score:3=[3,0,1]",
+     get_func<repeat_apply<z_score, std::vector<int64_t>, int64_t, float>,
+              std::vector<int64_t>, int64_t, float>()},
+    {"z_score:3=[3,1,0]",
+     get_func<repeat_apply<z_score, std::vector<int64_t>, float, int64_t>,
+              std::vector<int64_t>, float, int64_t>()},
+    {"z_score:3=[3,1,1]",
+     get_func<repeat_apply<z_score, std::vector<int64_t>, float, float>,
+              std::vector<int64_t>, float, float>()},
+    {"z_score:3=[1,0,0]", get_func<z_score, float, int64_t, int64_t>()},
+    {"z_score:3=[1,0,1]", get_func<z_score, float, int64_t, float>()},
+    {"z_score:3=[1,1,0]", get_func<z_score, float, float, int64_t>()},
     {"z_score:3=[1,1,1]", get_func<z_score, float, float, float>()},
+    {"z_score:3=[4,0,0]",
+     get_func<repeat_apply<z_score, std::vector<float>, int64_t, int64_t>,
+              std::vector<float>, int64_t, int64_t>()},
+    {"z_score:3=[4,0,1]",
+     get_func<repeat_apply<z_score, std::vector<float>, int64_t, float>,
+              std::vector<float>, int64_t, float>()},
+    {"z_score:3=[4,1,0]",
+     get_func<repeat_apply<z_score, std::vector<float>, float, int64_t>,
+              std::vector<float>, float, int64_t>()},
     {"z_score:3=[4,1,1]",
      get_func<repeat_apply<z_score, std::vector<float>, float, float>,
               std::vector<float>, float, float>()},
 
+    // std
     {"std:1=[3]", get_func<stddev<int64_t>, std::vector<int64_t>>()},
     {"std:1=[4]", get_func<stddev<float>, std::vector<float>>()},
 
+    // year
     {"year:0=[]", get_func<year>()},
     {"year:1=[0]", get_func<year_, int64_t>()},
 
+    // month
     {"month:0=[]", get_func<month>()},
     {"month:1=[0]", get_func<month_, int64_t>()},
 
+    // day
     {"day:0=[]", get_func<day>()},
     {"day:1=[0]", get_func<day_, int64_t>()},
 
+    // curdate
     {"curdate:0=[]", get_func<curdate>()},
     {"curdate:1=[0]", get_func<curdate_, int64_t>()},
 
+    // unix_timestamp
     {"unix_timestamp:0=[]", get_func<unix_timestamp>()},
     {"unix_timestamp:1=[0]", get_func<unix_timestamp_, int64_t>()},
 
+    // from_unixtime
     {"from_unixtime:2=[0,2]", get_func<from_unixtime, int64_t, std::string>()},
     {"from_unixtime:2=[3,2]",
      get_func<repeat_apply<from_unixtime, std::vector<int64_t>, std::string>,
               std::vector<int64_t>, std::string>()},
 
+    // date_add
     {"date_add:3=[2,0,2]",
      get_func<date_add, std::string, int64_t, std::string>()},
     {"date_add:3=[5,0,2]",
      get_func<
          repeat_apply<date_add, std::vector<std::string>, int64_t, std::string>,
          std::vector<std::string>, int64_t, std::string>()},
+    // date_sub
     {"date_sub:3=[2,0,2]",
      get_func<date_sub, std::string, int64_t, std::string>()},
     {"date_sub:3=[5,0,2]",
      get_func<
          repeat_apply<date_sub, std::vector<std::string>, int64_t, std::string>,
          std::vector<std::string>, int64_t, std::string>()},
+    // date_diff
     {"date_diff:2=[2,2]", get_func<datediff, std::string, std::string>()},
     {"datediff:2=[2,5]",
      get_func<repeat_apply<datediff, std::string, std::vector<std::string>>,
@@ -1302,33 +1560,42 @@ const std::unordered_map<std::string, Function> builtins = {
     {"datediff:2=[5,2]",
      get_func<repeat_apply<datediff, std::vector<std::string>, std::string>,
               std::vector<std::string>, std::string>()},
-
+    // concat
     {"concat:2=[2,2]", get_func<concat, std::string, std::string>()},
+    // concat_ws
     {"concat_ws:2=[2,5]",
      get_func<repeat_apply<concat, std::string, std::vector<std::string>>,
               std::string, std::vector<std::string>>()},
+    // cross
     {"cross:2=[5,5]",
      get_func<cross_apply<concat, std::string, std::string>,
               std::vector<std::string>, std::vector<std::string>>()},
+
+    // reverse
     {"reverse:1=[2]", get_func<reverse, std::string>()},
     {"reverse:1=[5]", get_func<repeat_apply<reverse, std::vector<std::string>>,
                                std::vector<std::string>>()},
+
+    // substr
     {"substr:3=[2,0,0]", get_func<substr, std::string, int64_t, int64_t>()},
     {"substr:3=[2,0,0]",
      get_func<repeat_apply<substr, std::vector<std::string>, int64_t, int64_t>,
               std::vector<std::string>, int64_t, int64_t>()},
-
+    // upper
     {"upper:1=[2]", get_func<upper, std::string>()},
     {"upper:1=[5]", get_func<repeat_apply<upper, std::vector<std::string>>,
                              std::vector<std::string>>()},
 
+    // lower
     {"lower:1=[2]", get_func<lower, std::string>()},
     {"lower:1=[5]", get_func<repeat_apply<lower, std::vector<std::string>>,
                              std::vector<std::string>>()},
 
+    // cast
     {"cast:1=[0]", get_func<cast, int64_t>()},
     {"cast:1=[3]", get_func<repeat_apply<cast, std::vector<int64_t>>,
                             std::vector<int64_t>>()},
+    // to_string
     {"to_string:1=[0]", get_func<to_string<int64_t>, int64_t>()},
     {"to_string:1=[3]",
      get_func<repeat_apply<to_string<int64_t>, std::vector<int64_t>>,
@@ -1338,6 +1605,7 @@ const std::unordered_map<std::string, Function> builtins = {
      get_func<repeat_apply<to_string<float>, std::vector<float>>,
               std::vector<float>>()},
 
+    // topk
     {"topk:2=[3,0]", get_func<topk<int64_t>, std::vector<int64_t>, int64_t>()},
     {"topk:2=[4,0]", get_func<topk<float>, std::vector<float>, int64_t>()},
     {"topk:2=[5,0]",
