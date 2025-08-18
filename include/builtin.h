@@ -1134,6 +1134,16 @@ const std::unordered_map<std::string, Function> builtins = {
               std::vector<float>, int64_t>()},
     {"add:2=[4,4]", get_func<map_apply<add<float>, float, float>,
                              std::vector<float>, std::vector<float>>()},
+    {"add:2=[2,2]", get_func<concat, std::string, std::string>()},
+    {"add:2=[2,5]",
+     get_func<repeat_apply<concat, std::string, std::vector<std::string>>,
+              std::string, std::vector<std::string>>()},
+    {"add:2=[5,2]",
+     get_func<repeat_apply<concat, std::vector<std::string>, std::string>,
+              std::vector<std::string>, std::string>()},
+    {"add:2=[5,5]",
+     get_func<map_apply<concat, std::string, std::string>,
+              std::vector<std::string>, std::vector<std::string>>()},
 
     // -
     {"sub:2=[0,0]", get_func<sub<int64_t>, int64_t, int64_t>()},

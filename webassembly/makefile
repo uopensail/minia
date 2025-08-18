@@ -32,7 +32,7 @@ WASM_FLAGS = -s WASM=1 \
              -s EXPORT_NAME='JSMinia' \
              -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' \
              -s ALLOW_MEMORY_GROWTH=1 \
-             -s INITIAL_MEMORY=64MB \
+             -s INITIAL_MEMORY=2MB \
              -s FILESYSTEM=0 \
              -s SINGLE_FILE=1 \
              -s ENVIRONMENT=web \
