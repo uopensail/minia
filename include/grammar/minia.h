@@ -84,153 +84,182 @@ public:
   ~MiniaListener() = default;
 
   // Override functions for parser rules
-  virtual void enterProg(miniaParser::ProgContext *ctx) {}
-  virtual void exitProg(miniaParser::ProgContext *ctx) {}
+  virtual void enterProg([[maybe_unused]] miniaParser::ProgContext *ctx) {}
+  virtual void exitProg([[maybe_unused]] miniaParser::ProgContext *ctx) {}
 
-  virtual void enterStart(miniaParser::StartContext *ctx) {}
-  virtual void exitStart(miniaParser::StartContext *ctx);
+  virtual void enterStart([[maybe_unused]] miniaParser::StartContext *ctx) {}
+  virtual void exitStart([[maybe_unused]] miniaParser::StartContext *ctx);
 
-  virtual void enterExpr(miniaParser::ExprContext *ctx) {}
-  virtual void exitExpr(miniaParser::ExprContext *ctx) {}
+  virtual void enterExpr([[maybe_unused]] miniaParser::ExprContext *ctx) {}
+  virtual void exitExpr([[maybe_unused]] miniaParser::ExprContext *ctx) {}
 
-  virtual void enterOrExpr(miniaParser::OrExprContext *ctx) {}
+  virtual void enterOrExpr([[maybe_unused]] miniaParser::OrExprContext *ctx) {}
   virtual void exitOrExpr(miniaParser::OrExprContext *ctx);
 
-  virtual void
-  enterTrivialLogicalAndExpr(miniaParser::TrivialLogicalAndExprContext *ctx) {}
-  virtual void
-  exitTrivialLogicalAndExpr(miniaParser::TrivialLogicalAndExprContext *ctx) {}
+  virtual void enterTrivialLogicalAndExpr([
+      [maybe_unused]] miniaParser::TrivialLogicalAndExprContext *ctx) {}
+  virtual void exitTrivialLogicalAndExpr([
+      [maybe_unused]] miniaParser::TrivialLogicalAndExprContext *ctx) {}
 
-  virtual void enterAndExpr(miniaParser::AndExprContext *ctx) {}
+  virtual void enterAndExpr([[maybe_unused]] miniaParser::AndExprContext *ctx) {
+  }
   virtual void exitAndExpr(miniaParser::AndExprContext *ctx);
 
-  virtual void
-  enterTrivialEqualityExpr(miniaParser::TrivialEqualityExprContext *ctx) {}
-  virtual void
-  exitTrivialEqualityExpr(miniaParser::TrivialEqualityExprContext *ctx) {}
+  virtual void enterTrivialEqualityExpr([
+      [maybe_unused]] miniaParser::TrivialEqualityExprContext *ctx) {}
+  virtual void exitTrivialEqualityExpr([
+      [maybe_unused]] miniaParser::TrivialEqualityExprContext *ctx) {}
 
-  virtual void enterEqualExpr(miniaParser::EqualExprContext *ctx) {}
+  virtual void enterEqualExpr([
+      [maybe_unused]] miniaParser::EqualExprContext *ctx) {}
   virtual void exitEqualExpr(miniaParser::EqualExprContext *ctx);
 
-  virtual void enterNotEqualExpr(miniaParser::NotEqualExprContext *ctx) {}
+  virtual void enterNotEqualExpr([
+      [maybe_unused]] miniaParser::NotEqualExprContext *ctx) {}
   virtual void exitNotEqualExpr(miniaParser::NotEqualExprContext *ctx);
 
-  virtual void
-  enterTrivialRelationalExpr(miniaParser::TrivialRelationalExprContext *ctx) {}
-  virtual void
-  exitTrivialRelationalExpr(miniaParser::TrivialRelationalExprContext *ctx) {}
+  virtual void enterTrivialRelationalExpr([
+      [maybe_unused]] miniaParser::TrivialRelationalExprContext *ctx) {}
+  virtual void exitTrivialRelationalExpr([
+      [maybe_unused]] miniaParser::TrivialRelationalExprContext *ctx) {}
 
-  virtual void enterGreaterThanExpr(miniaParser::GreaterThanExprContext *ctx) {}
+  virtual void enterGreaterThanExpr([
+      [maybe_unused]] miniaParser::GreaterThanExprContext *ctx) {}
   virtual void exitGreaterThanExpr(miniaParser::GreaterThanExprContext *ctx);
 
-  virtual void
-  enterGreaterThanEqualExpr(miniaParser::GreaterThanEqualExprContext *ctx) {}
+  virtual void enterGreaterThanEqualExpr([
+      [maybe_unused]] miniaParser::GreaterThanEqualExprContext *ctx) {}
   virtual void
   exitGreaterThanEqualExpr(miniaParser::GreaterThanEqualExprContext *ctx);
 
-  virtual void enterLessThanExpr(miniaParser::LessThanExprContext *ctx) {}
+  virtual void enterLessThanExpr([
+      [maybe_unused]] miniaParser::LessThanExprContext *ctx) {}
   virtual void exitLessThanExpr(miniaParser::LessThanExprContext *ctx);
 
-  virtual void
-  enterLessThanEqualExpr(miniaParser::LessThanEqualExprContext *ctx) {}
+  virtual void enterLessThanEqualExpr([
+      [maybe_unused]] miniaParser::LessThanEqualExprContext *ctx) {}
   virtual void
   exitLessThanEqualExpr(miniaParser::LessThanEqualExprContext *ctx);
 
-  virtual void
-  enterTrivialAdditiveExpr(miniaParser::TrivialAdditiveExprContext *ctx) {}
-  virtual void
-  exitTrivialAdditiveExpr(miniaParser::TrivialAdditiveExprContext *ctx) {}
+  virtual void enterTrivialAdditiveExpr([
+      [maybe_unused]] miniaParser::TrivialAdditiveExprContext *ctx) {}
+  virtual void exitTrivialAdditiveExpr([
+      [maybe_unused]] miniaParser::TrivialAdditiveExprContext *ctx) {}
 
-  virtual void enterAddExpr(miniaParser::AddExprContext *ctx) {}
+  virtual void enterAddExpr([[maybe_unused]] miniaParser::AddExprContext *ctx) {
+  }
   virtual void exitAddExpr(miniaParser::AddExprContext *ctx);
 
-  virtual void enterSubExpr(miniaParser::SubExprContext *ctx) {}
+  virtual void enterSubExpr([[maybe_unused]] miniaParser::SubExprContext *ctx) {
+  }
   virtual void exitSubExpr(miniaParser::SubExprContext *ctx);
 
-  virtual void enterTrivialMultiplicativeExpr(
-      miniaParser::TrivialMultiplicativeExprContext *ctx) {}
-  virtual void exitTrivialMultiplicativeExpr(
-      miniaParser::TrivialMultiplicativeExprContext *ctx) {}
+  virtual void enterTrivialMultiplicativeExpr([
+      [maybe_unused]] miniaParser::TrivialMultiplicativeExprContext *ctx) {}
+  virtual void exitTrivialMultiplicativeExpr([
+      [maybe_unused]] miniaParser::TrivialMultiplicativeExprContext *ctx) {}
 
-  virtual void enterMulExpr(miniaParser::MulExprContext *ctx) {}
+  virtual void enterMulExpr([[maybe_unused]] miniaParser::MulExprContext *ctx) {
+  }
   virtual void exitMulExpr(miniaParser::MulExprContext *ctx);
 
-  virtual void enterDivExpr(miniaParser::DivExprContext *ctx) {}
+  virtual void enterDivExpr([[maybe_unused]] miniaParser::DivExprContext *ctx) {
+  }
   virtual void exitDivExpr(miniaParser::DivExprContext *ctx);
 
-  virtual void enterModExpr(miniaParser::ModExprContext *ctx) {}
+  virtual void enterModExpr([[maybe_unused]] miniaParser::ModExprContext *ctx) {
+  }
   virtual void exitModExpr(miniaParser::ModExprContext *ctx);
 
-  virtual void
-  enterTrivialUnaryExpr(miniaParser::TrivialUnaryExprContext *ctx) {}
+  virtual void enterTrivialUnaryExpr([
+      [maybe_unused]] miniaParser::TrivialUnaryExprContext *ctx) {}
   virtual void exitTrivialUnaryExpr(miniaParser::TrivialUnaryExprContext *ctx) {
   }
 
-  virtual void enterNotExpr(miniaParser::NotExprContext *ctx) {}
+  virtual void enterNotExpr([[maybe_unused]] miniaParser::NotExprContext *ctx) {
+  }
   virtual void exitNotExpr(miniaParser::NotExprContext *ctx);
 
-  virtual void enterNegExpr(miniaParser::NegExprContext *ctx) {}
+  virtual void enterNegExpr([[maybe_unused]] miniaParser::NegExprContext *ctx) {
+  }
   virtual void exitNegExpr(miniaParser::NegExprContext *ctx);
 
-  virtual void
-  enterTrivialPrimaryExpr(miniaParser::TrivialPrimaryExprContext *ctx) {}
-  virtual void
-  exitTrivialPrimaryExpr(miniaParser::TrivialPrimaryExprContext *ctx) {}
+  virtual void enterTrivialPrimaryExpr([
+      [maybe_unused]] miniaParser::TrivialPrimaryExprContext *ctx) {}
+  virtual void exitTrivialPrimaryExpr([
+      [maybe_unused]] miniaParser::TrivialPrimaryExprContext *ctx) {}
 
-  virtual void
-  enterParenthesizedExpr(miniaParser::ParenthesizedExprContext *ctx) {}
-  virtual void
-  exitParenthesizedExpr(miniaParser::ParenthesizedExprContext *ctx) {}
+  virtual void enterParenthesizedExpr([
+      [maybe_unused]] miniaParser::ParenthesizedExprContext *ctx) {}
+  virtual void exitParenthesizedExpr([
+      [maybe_unused]] miniaParser::ParenthesizedExprContext *ctx) {}
 
-  virtual void
-  enterFunctionCallExpr(miniaParser::FunctionCallExprContext *ctx) {}
-  virtual void exitFunctionCallExpr(miniaParser::FunctionCallExprContext *ctx) {
-  }
+  virtual void enterFunctionCallExpr([
+      [maybe_unused]] miniaParser::FunctionCallExprContext *ctx) {}
+  virtual void exitFunctionCallExpr([
+      [maybe_unused]] miniaParser::FunctionCallExprContext *ctx) {}
 
-  virtual void enterColumnExpr(miniaParser::ColumnExprContext *ctx) {}
+  virtual void enterColumnExpr([
+      [maybe_unused]] miniaParser::ColumnExprContext *ctx) {}
   virtual void exitColumnExpr(miniaParser::ColumnExprContext *ctx);
 
-  virtual void enterLiteralExpr(miniaParser::LiteralExprContext *ctx) {}
+  virtual void enterLiteralExpr([
+      [maybe_unused]] miniaParser::LiteralExprContext *ctx) {}
   virtual void exitLiteralExpr(miniaParser::LiteralExprContext *ctx) {}
 
-  virtual void enterListExpr(miniaParser::ListExprContext *ctx) {}
-  virtual void exitListExpr(miniaParser::ListExprContext *ctx) {}
+  virtual void enterListExpr([
+      [maybe_unused]] miniaParser::ListExprContext *ctx) {}
+  virtual void exitListExpr([
+      [maybe_unused]] miniaParser::ListExprContext *ctx) {}
 
-  virtual void enterTrueExpr(miniaParser::TrueExprContext *ctx) {}
+  virtual void enterTrueExpr([
+      [maybe_unused]] miniaParser::TrueExprContext *ctx) {}
   virtual void exitTrueExpr(miniaParser::TrueExprContext *ctx);
 
-  virtual void enterFalseExpr(miniaParser::FalseExprContext *ctx) {}
+  virtual void enterFalseExpr([
+      [maybe_unused]] miniaParser::FalseExprContext *ctx) {}
   virtual void exitFalseExpr(miniaParser::FalseExprContext *ctx);
 
-  virtual void enterStringListExpr(miniaParser::StringListExprContext *ctx) {}
+  virtual void enterStringListExpr([
+      [maybe_unused]] miniaParser::StringListExprContext *ctx) {}
   virtual void exitStringListExpr(miniaParser::StringListExprContext *ctx);
 
-  virtual void enterIntegerListExpr(miniaParser::IntegerListExprContext *ctx) {}
+  virtual void enterIntegerListExpr([
+      [maybe_unused]] miniaParser::IntegerListExprContext *ctx) {}
   virtual void exitIntegerListExpr(miniaParser::IntegerListExprContext *ctx);
 
-  virtual void enterDecimalListExpr(miniaParser::DecimalListExprContext *ctx) {}
+  virtual void enterDecimalListExpr([
+      [maybe_unused]] miniaParser::DecimalListExprContext *ctx) {}
   virtual void exitDecimalListExpr(miniaParser::DecimalListExprContext *ctx);
 
-  virtual void enterFuncCall(miniaParser::FuncCallContext *ctx) {}
+  virtual void enterFuncCall([
+      [maybe_unused]] miniaParser::FuncCallContext *ctx) {}
   virtual void exitFuncCall(miniaParser::FuncCallContext *ctx);
 
-  virtual void enterExprList(miniaParser::ExprListContext *ctx) {}
-  virtual void exitExprList(miniaParser::ExprListContext *ctx) {}
+  virtual void enterExprList([
+      [maybe_unused]] miniaParser::ExprListContext *ctx) {}
+  virtual void exitExprList([
+      [maybe_unused]] miniaParser::ExprListContext *ctx) {}
 
-  virtual void enterStringExpr(miniaParser::StringExprContext *ctx) {}
+  virtual void enterStringExpr([
+      [maybe_unused]] miniaParser::StringExprContext *ctx) {}
   virtual void exitStringExpr(miniaParser::StringExprContext *ctx);
 
-  virtual void enterIntegerExpr(miniaParser::IntegerExprContext *ctx) {}
+  virtual void enterIntegerExpr([
+      [maybe_unused]] miniaParser::IntegerExprContext *ctx) {}
   virtual void exitIntegerExpr(miniaParser::IntegerExprContext *ctx);
 
-  virtual void enterDecimalExpr(miniaParser::DecimalExprContext *ctx) {}
+  virtual void enterDecimalExpr([
+      [maybe_unused]] miniaParser::DecimalExprContext *ctx) {}
   virtual void exitDecimalExpr(miniaParser::DecimalExprContext *ctx);
 
   // others
-  virtual void visitTerminal(antlr4::tree::TerminalNode *node) {}
-  virtual void visitErrorNode(antlr4::tree::ErrorNode *node) {}
-  virtual void enterEveryRule(antlr4::ParserRuleContext *ctx) {}
-  virtual void exitEveryRule(antlr4::ParserRuleContext *ctx) {}
+  virtual void visitTerminal([
+      [maybe_unused]] antlr4::tree::TerminalNode *node) {}
+  virtual void visitErrorNode([[maybe_unused]] antlr4::tree::ErrorNode *node) {}
+  virtual void enterEveryRule([[maybe_unused]] antlr4::ParserRuleContext *ctx) {
+  }
+  virtual void exitEveryRule([[maybe_unused]] antlr4::ParserRuleContext *ctx) {}
 
 private:
   std::shared_ptr<Expr> caluc(std::shared_ptr<Expr> expr);

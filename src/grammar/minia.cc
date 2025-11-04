@@ -26,7 +26,8 @@ void MiniaListener::exitStart(miniaParser::StartContext *ctx) {
  * @brief Exit function for multiplication expression rule.
  * @param ctx Context of the multiplication expression rule.
  */
-void MiniaListener::exitMulExpr(miniaParser::MulExprContext *ctx) {
+void MiniaListener::exitMulExpr([
+    [maybe_unused]] miniaParser::MulExprContext *ctx) {
   if (exprs_.size() < 2) {
     LOG(ERROR) << "Insufficient operands for multiplication.\n";
     throw std::runtime_error("Insufficient operands for multiplication.");
@@ -155,7 +156,8 @@ void MiniaListener::exitColumnExpr(miniaParser::ColumnExprContext *ctx) {
  * @brief Exit function for subtraction expression rule.
  * @param ctx Context of the subtraction expression rule.
  */
-void MiniaListener::exitSubExpr(miniaParser::SubExprContext *ctx) {
+void MiniaListener::exitSubExpr([
+    [maybe_unused]] miniaParser::SubExprContext *ctx) {
   if (exprs_.size() < 2) {
     LOG(ERROR) << "Insufficient operands for subtraction.\n";
     throw std::runtime_error("Insufficient operands for subtraction.");
@@ -180,7 +182,8 @@ void MiniaListener::exitSubExpr(miniaParser::SubExprContext *ctx) {
  * @brief Exit function for addition expression rule.
  * @param ctx Context of the addition expression rule.
  */
-void MiniaListener::exitAddExpr(miniaParser::AddExprContext *ctx) {
+void MiniaListener::exitAddExpr([
+    [maybe_unused]] miniaParser::AddExprContext *ctx) {
   if (exprs_.size() < 2) {
     LOG(ERROR) << "Insufficient operands for addition.\n";
     throw std::runtime_error("Insufficient operands for addition.");
@@ -310,7 +313,8 @@ void MiniaListener::exitIntegerExpr(miniaParser::IntegerExprContext *ctx) {
  * @brief Exit function for division expression rule.
  * @param ctx Context of the division expression rule.
  */
-void MiniaListener::exitDivExpr(miniaParser::DivExprContext *ctx) {
+void MiniaListener::exitDivExpr([
+    [maybe_unused]] miniaParser::DivExprContext *ctx) {
   if (exprs_.size() < 2) {
     LOG(ERROR) << "Insufficient operands for division.\n";
     throw std::runtime_error("Insufficient operands for division.");
@@ -335,7 +339,8 @@ void MiniaListener::exitDivExpr(miniaParser::DivExprContext *ctx) {
  * @brief Exit function for modulo expression rule.
  * @param ctx Context of the modulo expression rule.
  */
-void MiniaListener::exitModExpr(miniaParser::ModExprContext *ctx) {
+void MiniaListener::exitModExpr([
+    [maybe_unused]] miniaParser::ModExprContext *ctx) {
   if (exprs_.size() < 2) {
     LOG(ERROR) << "Insufficient operands for modulo operation.\n";
     throw std::runtime_error("Insufficient operands for modulo operation.");
@@ -436,7 +441,8 @@ void MiniaListener::exitIntegerListExpr(
  * @brief Exit function for "and" expression rule.
  * @param ctx Context of the "and" expression rule.
  */
-void MiniaListener::exitAndExpr(miniaParser::AndExprContext *ctx) {
+void MiniaListener::exitAndExpr([
+    [maybe_unused]] miniaParser::AndExprContext *ctx) {
   if (exprs_.size() < 2) {
     LOG(ERROR) << "Insufficient operands for and.\n";
     throw std::runtime_error("Insufficient operands for and.");
@@ -461,7 +467,8 @@ void MiniaListener::exitAndExpr(miniaParser::AndExprContext *ctx) {
  * @brief Exit function for "true" expression rule.
  * @param ctx Context of the "true" expression rule.
  */
-void MiniaListener::exitTrueExpr(miniaParser::TrueExprContext *ctx) {
+void MiniaListener::exitTrueExpr([
+    [maybe_unused]] miniaParser::TrueExprContext *ctx) {
   int64_t value = 1;
   FeaturePtr f = std::make_shared<Feature>(std::move(value));
   std::shared_ptr<Expr> ptr =
@@ -474,7 +481,8 @@ void MiniaListener::exitTrueExpr(miniaParser::TrueExprContext *ctx) {
  * @brief Exit function for "or" expression rule.
  * @param ctx Context of the "or" expression rule.
  */
-void MiniaListener::exitOrExpr(miniaParser::OrExprContext *ctx) {
+void MiniaListener::exitOrExpr([
+    [maybe_unused]] miniaParser::OrExprContext *ctx) {
   if (exprs_.size() < 2) {
     LOG(ERROR) << "Insufficient operands for or.\n";
     throw std::runtime_error("Insufficient operands for or.");
@@ -499,7 +507,8 @@ void MiniaListener::exitOrExpr(miniaParser::OrExprContext *ctx) {
  * @brief Exit function for "false" expression rule.
  * @param ctx Context of the "false" expression rule.
  */
-void MiniaListener::exitFalseExpr(miniaParser::FalseExprContext *ctx) {
+void MiniaListener::exitFalseExpr([
+    [maybe_unused]] miniaParser::FalseExprContext *ctx) {
   int64_t value = 0;
   FeaturePtr f = std::make_shared<Feature>(std::move(value));
   std::shared_ptr<Expr> ptr =
@@ -512,7 +521,8 @@ void MiniaListener::exitFalseExpr(miniaParser::FalseExprContext *ctx) {
  * @brief Exit function for "not" expression rule.
  * @param ctx Context of the "not" expression rule.
  */
-void MiniaListener::exitNotExpr(miniaParser::NotExprContext *ctx) {
+void MiniaListener::exitNotExpr([
+    [maybe_unused]] miniaParser::NotExprContext *ctx) {
   if (exprs_.size() < 1) {
     LOG(ERROR) << "Insufficient operands for not.\n";
     throw std::runtime_error("Insufficient operands for not.");
@@ -536,7 +546,8 @@ void MiniaListener::exitNotExpr(miniaParser::NotExprContext *ctx) {
  * @brief Exit function for "-" expression rule.
  * @param ctx Context of the "-" expression rule.
  */
-void MiniaListener::exitNegExpr(miniaParser::NegExprContext *ctx) {
+void MiniaListener::exitNegExpr([
+    [maybe_unused]] miniaParser::NegExprContext *ctx) {
   if (exprs_.size() < 1) {
     LOG(ERROR) << "Insufficient operands for `-`.\n";
     throw std::runtime_error("Insufficient operands for `-`.");
@@ -572,8 +583,8 @@ void MiniaListener::exitNegExpr(miniaParser::NegExprContext *ctx) {
  * @param ctx Context of the "greater than or equal" expression rule.
  * @throws std::runtime_error if there are fewer than two operands on the stack.
  */
-void MiniaListener::exitGreaterThanEqualExpr(
-    miniaParser::GreaterThanEqualExprContext *ctx) {
+void MiniaListener::exitGreaterThanEqualExpr([
+    [maybe_unused]] miniaParser::GreaterThanEqualExprContext *ctx) {
   if (exprs_.size() < 2) {
     LOG(ERROR) << "Insufficient operands for gte.\n";
     throw std::runtime_error("Insufficient operands for gte.");
@@ -603,8 +614,8 @@ void MiniaListener::exitGreaterThanEqualExpr(
  * @param ctx Context of the "less than or equal" expression rule.
  * @throws std::runtime_error if there are fewer than two operands on the stack.
  */
-void MiniaListener::exitLessThanEqualExpr(
-    miniaParser::LessThanEqualExprContext *ctx) {
+void MiniaListener::exitLessThanEqualExpr([
+    [maybe_unused]] miniaParser::LessThanEqualExprContext *ctx) {
   if (exprs_.size() < 2) {
     LOG(ERROR) << "Insufficient operands for lte.\n";
     throw std::runtime_error("Insufficient operands for lte.");
@@ -634,7 +645,8 @@ void MiniaListener::exitLessThanEqualExpr(
  * @param ctx Context of the "less than" expression rule.
  * @throws std::runtime_error if there are fewer than two operands on the stack.
  */
-void MiniaListener::exitLessThanExpr(miniaParser::LessThanExprContext *ctx) {
+void MiniaListener::exitLessThanExpr([
+    [maybe_unused]] miniaParser::LessThanExprContext *ctx) {
   if (exprs_.size() < 2) {
     LOG(ERROR) << "Insufficient operands for lt.\n";
     throw std::runtime_error("Insufficient operands for lt.");
@@ -664,8 +676,8 @@ void MiniaListener::exitLessThanExpr(miniaParser::LessThanExprContext *ctx) {
  * @param ctx Context of the "greater than" expression rule.
  * @throws std::runtime_error if there are fewer than two operands on the stack.
  */
-void MiniaListener::exitGreaterThanExpr(
-    miniaParser::GreaterThanExprContext *ctx) {
+void MiniaListener::exitGreaterThanExpr([
+    [maybe_unused]] miniaParser::GreaterThanExprContext *ctx) {
   if (exprs_.size() < 2) {
     LOG(ERROR) << "Insufficient operands for gt.\n";
     throw std::runtime_error("Insufficient operands for gt.");
@@ -695,7 +707,8 @@ void MiniaListener::exitGreaterThanExpr(
  * @param ctx Context of the "not equal" expression rule.
  * @throws std::runtime_error if there are fewer than two operands on the stack.
  */
-void MiniaListener::exitNotEqualExpr(miniaParser::NotEqualExprContext *ctx) {
+void MiniaListener::exitNotEqualExpr([
+    [maybe_unused]] miniaParser::NotEqualExprContext *ctx) {
   if (exprs_.size() < 2) {
     LOG(ERROR) << "Insufficient operands for neq.\n";
     throw std::runtime_error("Insufficient operands for neq.");
@@ -725,7 +738,8 @@ void MiniaListener::exitNotEqualExpr(miniaParser::NotEqualExprContext *ctx) {
  * @param ctx Context of the "equal" expression rule.
  * @throws std::runtime_error if there are fewer than two operands on the stack.
  */
-void MiniaListener::exitEqualExpr(miniaParser::EqualExprContext *ctx) {
+void MiniaListener::exitEqualExpr([
+    [maybe_unused]] miniaParser::EqualExprContext *ctx) {
   if (exprs_.size() < 2) {
     LOG(ERROR) << "Insufficient operands for eq.\n";
     throw std::runtime_error("Insufficient operands for eq.");
