@@ -123,7 +123,7 @@ The expressions are written in strings , which define how features should be tra
 | from_unixtime  | Converts a Unix timestamp to a date.                           |
 | date_add       | Adds a specified time interval to a date.                      |
 | date_sub       | Subtracts a specified time interval from a date.               |
-| date_diff      | Computes the difference between two dates.                     |
+| datediff       | Computes the difference between two dates.                     |
 | datediff       | Alternate name for computing the difference between two dates. |
 | concat         | Concatenates strings together.                                 |
 | concat_ws      | Concatenates strings with a specified delimiter.               |
