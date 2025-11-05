@@ -1590,16 +1590,16 @@ const std::unordered_map<std::string, Function> builtins = {
     {"max:1=[4]", get_func<max<float>, std::vector<float>>()},
 
     // Average function
-    {"average:1=[3]", get_func<average<int64_t>, std::vector<int64_t>>()},
-    {"average:1=[4]", get_func<average<float>, std::vector<float>>()},
+    {"avg:1=[3]", get_func<average<int64_t>, std::vector<int64_t>>()},
+    {"avg:1=[4]", get_func<average<float>, std::vector<float>>()},
 
     // Variance function
-    {"variance:1=[3]", get_func<variance<int64_t>, std::vector<int64_t>>()},
-    {"variance:1=[4]", get_func<variance<float>, std::vector<float>>()},
+    {"var:1=[3]", get_func<variance<int64_t>, std::vector<int64_t>>()},
+    {"var:1=[4]", get_func<variance<float>, std::vector<float>>()},
 
     // Standard deviation function
-    {"stddev:1=[3]", get_func<stddev<int64_t>, std::vector<int64_t>>()},
-    {"stddev:1=[4]", get_func<stddev<float>, std::vector<float>>()},
+    {"std:1=[3]", get_func<stddev<int64_t>, std::vector<int64_t>>()},
+    {"std:1=[4]", get_func<stddev<float>, std::vector<float>>()},
 
     // Norm function
     {"norm:2=[3,1]", get_func<norm<int64_t>, std::vector<int64_t>, float>()},
@@ -1764,6 +1764,9 @@ const std::unordered_map<std::string, Function> builtins = {
 
     // std::string with vector concatenation
     {"concat:2=[2,5]",
+     get_func<repeat_apply<concat, std::string, std::vector<std::string>>,
+              std::string, std::vector<std::string>>()},
+    {"concat_ws:2=[2,5]",
      get_func<repeat_apply<concat, std::string, std::vector<std::string>>,
               std::string, std::vector<std::string>>()},
     {"concat:2=[5,2]",

@@ -37,9 +37,9 @@ void MiniaListener::exitMulExpr([
   auto left = exprs_.top();
   exprs_.pop();
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "mul",
+      "node:" + std::to_string(node_count_), "mul",
       std::vector<std::shared_ptr<Expr>>{left, right});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -56,9 +56,9 @@ void MiniaListener::exitStringExpr(miniaParser::StringExprContext *ctx) {
   std::string str = ctx->STRING()->getText();
   FeaturePtr f = std::make_shared<Feature>(str.substr(1, str.size() - 2));
   std::shared_ptr<Expr> ptr =
-      std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
+      std::make_shared<Literal>("node:" + std::to_string(node_count_), f);
   exprs_.push(ptr);
-  g_node_count++;
+  node_count_++;
 
   nodes_.push_back(ptr);
 }
@@ -135,9 +135,9 @@ void MiniaListener::exitDecimalListExpr(
 
   FeaturePtr f = std::make_shared<Feature>(std::move(result));
   std::shared_ptr<Expr> ptr =
-      std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
+      std::make_shared<Literal>("node:" + std::to_string(node_count_), f);
   exprs_.push(ptr);
-  g_node_count++;
+  node_count_++;
   nodes_.push_back(ptr);
 }
 
@@ -167,9 +167,9 @@ void MiniaListener::exitSubExpr([
   auto left = exprs_.top();
   exprs_.pop();
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "sub",
+      "node:" + std::to_string(node_count_), "sub",
       std::vector<std::shared_ptr<Expr>>{left, right});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -193,9 +193,9 @@ void MiniaListener::exitAddExpr([
   auto left = exprs_.top();
   exprs_.pop();
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "add",
+      "node:" + std::to_string(node_count_), "add",
       std::vector<std::shared_ptr<Expr>>{left, right});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -215,9 +215,9 @@ void MiniaListener::exitDecimalExpr(miniaParser::DecimalExprContext *ctx) {
     FeaturePtr f = std::make_shared<Feature>(std::move(value));
 
     std::shared_ptr<Expr> ptr =
-        std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
+        std::make_shared<Literal>("node:" + std::to_string(node_count_), f);
     exprs_.push(ptr);
-    g_node_count++;
+    node_count_++;
   } catch (const std::invalid_argument &e) {
     LOG(ERROR) << "Invalid number format:" << str << "\n";
     throw std::runtime_error("Invalid number format: " + str);
@@ -281,9 +281,9 @@ void MiniaListener::exitStringListExpr(
   FeaturePtr f = std::make_shared<Feature>(std::move(result));
 
   std::shared_ptr<Expr> ptr =
-      std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
+      std::make_shared<Literal>("node:" + std::to_string(node_count_), f);
   exprs_.push(ptr);
-  g_node_count++;
+  node_count_++;
 }
 
 /**
@@ -297,9 +297,9 @@ void MiniaListener::exitIntegerExpr(miniaParser::IntegerExprContext *ctx) {
 
     FeaturePtr f = std::make_shared<Feature>(std::move(value));
     std::shared_ptr<Expr> ptr =
-        std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
+        std::make_shared<Literal>("node:" + std::to_string(node_count_), f);
     exprs_.push(ptr);
-    g_node_count++;
+    node_count_++;
   } catch (const std::invalid_argument &e) {
     LOG(ERROR) << "Invalid number format: " << str << "\n";
     throw std::runtime_error("Invalid number format: " + str);
@@ -324,9 +324,9 @@ void MiniaListener::exitDivExpr([
   auto left = exprs_.top();
   exprs_.pop();
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "div",
+      "node:" + std::to_string(node_count_), "div",
       std::vector<std::shared_ptr<Expr>>{left, right});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -350,9 +350,9 @@ void MiniaListener::exitModExpr([
   auto left = exprs_.top();
   exprs_.pop();
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "mod",
+      "node:" + std::to_string(node_count_), "mod",
       std::vector<std::shared_ptr<Expr>>{left, right});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -432,9 +432,9 @@ void MiniaListener::exitIntegerListExpr(
 
   FeaturePtr f = std::make_shared<Feature>(std::move(result));
   std::shared_ptr<Expr> ptr =
-      std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
+      std::make_shared<Literal>("node:" + std::to_string(node_count_), f);
   exprs_.push(ptr);
-  g_node_count++;
+  node_count_++;
 }
 
 /**
@@ -452,9 +452,9 @@ void MiniaListener::exitAndExpr([
   auto left = exprs_.top();
   exprs_.pop();
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "and",
+      "node:" + std::to_string(node_count_), "and",
       std::vector<std::shared_ptr<Expr>>{left, right});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -472,9 +472,9 @@ void MiniaListener::exitTrueExpr([
   int64_t value = 1;
   FeaturePtr f = std::make_shared<Feature>(std::move(value));
   std::shared_ptr<Expr> ptr =
-      std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
+      std::make_shared<Literal>("node:" + std::to_string(node_count_), f);
   exprs_.push(ptr);
-  g_node_count++;
+  node_count_++;
 }
 
 /**
@@ -492,9 +492,9 @@ void MiniaListener::exitOrExpr([
   auto left = exprs_.top();
   exprs_.pop();
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "or",
+      "node:" + std::to_string(node_count_), "or",
       std::vector<std::shared_ptr<Expr>>{left, right});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -512,9 +512,9 @@ void MiniaListener::exitFalseExpr([
   int64_t value = 0;
   FeaturePtr f = std::make_shared<Feature>(std::move(value));
   std::shared_ptr<Expr> ptr =
-      std::make_shared<Literal>("node:" + std::to_string(g_node_count), f);
+      std::make_shared<Literal>("node:" + std::to_string(node_count_), f);
   exprs_.push(ptr);
-  g_node_count++;
+  node_count_++;
 }
 
 /**
@@ -531,9 +531,9 @@ void MiniaListener::exitNotExpr([
   exprs_.pop();
 
   std::shared_ptr<Expr> ptr =
-      std::make_shared<Variable>("node:" + std::to_string(g_node_count), "not",
+      std::make_shared<Variable>("node:" + std::to_string(node_count_), "not",
                                  std::vector<std::shared_ptr<Expr>>{expr});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -560,12 +560,12 @@ void MiniaListener::exitNegExpr([
   int64_t value = 0;
   FeaturePtr f = std::make_shared<Feature>(std::move(value));
   args.push_back(
-      std::make_shared<Literal>("node:" + std::to_string(g_node_count), f));
-  g_node_count++;
+      std::make_shared<Literal>("node:" + std::to_string(node_count_), f));
+  node_count_++;
   args.push_back(expr);
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "sub", args);
-  g_node_count++;
+      "node:" + std::to_string(node_count_), "sub", args);
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -594,9 +594,9 @@ void MiniaListener::exitGreaterThanEqualExpr([
   auto left = exprs_.top();
   exprs_.pop();
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "gte",
+      "node:" + std::to_string(node_count_), "gte",
       std::vector<std::shared_ptr<Expr>>{left, right});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -625,9 +625,9 @@ void MiniaListener::exitLessThanEqualExpr([
   auto left = exprs_.top();
   exprs_.pop();
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "lte",
+      "node:" + std::to_string(node_count_), "lte",
       std::vector<std::shared_ptr<Expr>>{left, right});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -656,9 +656,9 @@ void MiniaListener::exitLessThanExpr([
   auto left = exprs_.top();
   exprs_.pop();
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "lt",
+      "node:" + std::to_string(node_count_), "lt",
       std::vector<std::shared_ptr<Expr>>{left, right});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -687,9 +687,9 @@ void MiniaListener::exitGreaterThanExpr([
   auto left = exprs_.top();
   exprs_.pop();
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "gt",
+      "node:" + std::to_string(node_count_), "gt",
       std::vector<std::shared_ptr<Expr>>{left, right});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -718,9 +718,9 @@ void MiniaListener::exitNotEqualExpr([
   auto left = exprs_.top();
   exprs_.pop();
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "neq",
+      "node:" + std::to_string(node_count_), "neq",
       std::vector<std::shared_ptr<Expr>>{left, right});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -749,9 +749,9 @@ void MiniaListener::exitEqualExpr([
   auto left = exprs_.top();
   exprs_.pop();
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), "eq",
+      "node:" + std::to_string(node_count_), "eq",
       std::vector<std::shared_ptr<Expr>>{left, right});
-  g_node_count++;
+  node_count_++;
   ptr = caluc(ptr);
   exprs_.push(ptr);
 
@@ -788,8 +788,8 @@ void MiniaListener::exitFuncCall(miniaParser::FuncCallContext *ctx) {
   std::reverse(args.begin(), args.end());
 
   std::shared_ptr<Expr> ptr = std::make_shared<Variable>(
-      "node:" + std::to_string(g_node_count), str, args);
-  g_node_count++;
+      "node:" + std::to_string(node_count_), str, args);
+  node_count_++;
 
   ptr = caluc(ptr);
   exprs_.push(ptr);

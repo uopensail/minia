@@ -26,8 +26,6 @@
 
 namespace minia {
 
-static int32_t g_node_count; ///< Static count for expression tracking.
-
 /**
  * @brief Enumeration for expression types.
  */
@@ -80,7 +78,7 @@ struct Variable : Expr {
 
 class MiniaListener : public miniaListener {
 public:
-  MiniaListener() = default;
+  MiniaListener() : node_count_(0) {}
   ~MiniaListener() = default;
 
   // Override functions for parser rules
@@ -173,8 +171,8 @@ public:
 
   virtual void enterTrivialUnaryExpr([
       [maybe_unused]] miniaParser::TrivialUnaryExprContext *ctx) {}
-  virtual void exitTrivialUnaryExpr(miniaParser::TrivialUnaryExprContext *ctx) {
-  }
+  virtual void exitTrivialUnaryExpr([
+      [maybe_unused]] miniaParser::TrivialUnaryExprContext *ctx) {}
 
   virtual void enterNotExpr([[maybe_unused]] miniaParser::NotExprContext *ctx) {
   }
@@ -205,7 +203,8 @@ public:
 
   virtual void enterLiteralExpr([
       [maybe_unused]] miniaParser::LiteralExprContext *ctx) {}
-  virtual void exitLiteralExpr(miniaParser::LiteralExprContext *ctx) {}
+  virtual void exitLiteralExpr([
+      [maybe_unused]] miniaParser::LiteralExprContext *ctx) {}
 
   virtual void enterListExpr([
       [maybe_unused]] miniaParser::ListExprContext *ctx) {}
@@ -268,6 +267,7 @@ private:
   std::stack<std::shared_ptr<Expr>> exprs_; ///< Stack to hold expressions.
 
 public:
+  int32_t node_count_; ///< Static count for expression tracking.
   std::vector<std::shared_ptr<Expr>>
       nodes_;                         ///< Vector to hold expression nodes.
   std::vector<std::string> features_; ///< Output features of the expressions
